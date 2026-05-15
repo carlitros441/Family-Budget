@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill Tracker + Income + Cash Flow — Cochino & Pepona</title>
+    <style>
+        :root {
+            --bg: #0f0f1a;
+            --surface: #1a1a2e;
+            --surface2: #222240;
+            --text: #e0e0e0;
+            --text-secondary: #a0a0b8;
+            --accent: #6366f1;
+            --accent-hover: #818cf8;
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.15);
+            --warning: #f59e0b;
+            --warning-bg: rgba(245, 158, 11, 0.15);
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.15);
+            --border: #2a2a45;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+            --cochino: #ec4899;
+            --pepona: #a855f7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 30% 20%, rgba(99, 102, 241, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 60%, rgba(139, 92, 246, 0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 40%);
+            z-index: 0;
+            pointer-events: none;
+            animation: bgShift 20s ease-in-out infinite;
+        }
+        @keyframes bgShift {
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+            33% {
+                transform: translate(2%, -1%);
+            }
+            66% {
+                transform: translate(-1%, 2%);
+            }
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 24px 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            padding: 32px 0 20px;
+        }
+        .header .icon-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+        .header .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+        }
+        .header h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #fff;
+        }
+        .header .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 22px;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+        .stat-card .stat-icon {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #fff;
+        }
+        .stat-card .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-top: 2px;
+        }
+        .stat-card.overdue .stat-value {
+            color: var(--danger);
+        }
+        .stat-card.total .stat-value {
+            color: var(--accent-hover);
+        }
+        .stat-card.paid .stat-value {
+            color: var(--success);
+        }
+        .stat-card .accent-line {
+            position: absolute;
+            top: 0;
+            left: 20%;
+            right: 20%;
+            height: 3px;
+            border-radius: 0 0 6px 6px;
+        }
+        .stat-card.overdue .accent-line {
+            background: var(--danger);
+        }
+        .stat-card.total .accent-line {
+            background: var(--accent);
+        }
+        .stat-card.paid .accent-line {
+            background: var(--success);
+        }
+        .stat-card.upcoming .accent-line {
+            background: var(--warning);
+        }
+        .stat-card.cochino .accent-line {
+            background: var(--cochino);
+        }
+        .stat-card.pepona .accent-line {
+            background: var(--pepona);
+        }
+        .stat-card.balance .accent-line {
+            background: #22d3ee;
+        }
+
+        .person-dashboard {
+            grid-template-columns: repeat(2, 1fr);
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .income-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            max-width: 500px;
+            margin: 0 auto 20px;
+        }
+        @media (max-width: 550px) {
+            .person-dashboard,
+            .income-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .month-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .month-selector button {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .month-selector button:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+        .month-selector .month-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+            min-width: 160px;
+            text-align: center;
+            color: #fff;
+            letter-spacing: -0.01em;
+        }
+
+        .income-section,
+        .cashflow-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            margin-bottom: 24px;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .section-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: -0.01em;
+        }
+        .income-summary {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        .income-summary span {
+            font-weight: 600;
+            color: #fff;
+        }
+        .income-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        .income-table thead th {
+            text-align: left;
+            padding: 10px 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            border-bottom: 1px solid var(--border);
+        }
+        .income-table tbody td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(42, 42, 69, 0.5);
+        }
+        .income-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .pay-status {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .pay-status.expected {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+        }
+        .pay-status.received {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .cashflow-canvas-wrap {
+            width: 100%;
+            height: 300px;
+            margin-bottom: 16px;
+        }
+        #cashflow-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .balance-stat {
+            display: flex;
+            justify-content: center;
+            margin-top: 8px;
+        }
+        .balance-stat .stat-card {
+            max-width: 240px;
+        }
+        .range-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        .range-selector select {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-family: inherit;
+        }
+
+        .form-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px 24px;
+            margin-bottom: 24px;
+        }
+        .form-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #fff;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+            min-width: 100px;
+        }
+        .form-group label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        .form-group input,
+        .form-group select {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+            width: 100%;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            font-family: inherit;
+            letter-spacing: 0.01em;
+            white-space: nowrap;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            height: 42px;
+            align-self: flex-end;
+        }
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+            transform: translateY(-1px);
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border-radius: 6px;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .btn-outline:hover {
+            background: var(--surface2);
+            border-color: #555;
+        }
+        .btn-success {
+            background: var(--success);
+            color: #000;
+        }
+        .btn-success:hover {
+            background: #34d399;
+        }
+        .btn-danger {
+            background: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+        .btn-danger:hover {
+            background: var(--danger-bg);
+        }
+
+        .bills-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            overflow: hidden;
+        }
+        .bills-section .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .bills-section h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+        }
+        .filter-tabs {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .filter-tab {
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            font-family: inherit;
+            font-weight: 500;
+        }
+        .filter-tab.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+        .filter-tab:hover:not(.active) {
+            background: var(--surface2);
+            color: var(--text);
+        }
+        .bills-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        .bills-table thead th {
+            text-align: left;
+            padding: 10px 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            border-bottom: 1px solid var(--border);
+        }
+        .bills-table tbody td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(42, 42, 69, 0.5);
+            vertical-align: middle;
+        }
+        .bills-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .bill-name {
+            font-weight: 600;
+            color: #fff;
+        }
+        .bill-category {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: var(--surface2);
+            color: var(--text-secondary);
+        }
+        .amount {
+            font-weight: 600;
+            color: #fff;
+            font-family: 'SF Mono', 'JetBrains Mono', 'Consolas', monospace;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .status-badge.paid {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+        .status-badge.overdue {
+            background: var(--danger-bg);
+            color: var(--danger);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .status-badge.upcoming {
+            background: var(--warning-bg);
+            color: var(--warning);
+        }
+        .status-badge.future {
+            background: rgba(139, 92, 246, 0.12);
+            color: #a78bfa;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+        .due-date {
+            font-family: 'SF Mono', 'JetBrains Mono', 'Consolas', monospace;
+            font-size: 0.85rem;
+        }
+        .actions-cell {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+        .empty-state .empty-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .toast {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 12px 18px;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            box-shadow: var(--shadow);
+            animation: slideIn 0.3s ease;
+            max-width: 380px;
+            font-weight: 500;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 12px 10px 30px;
+            }
+            .header h1 {
+                font-size: 1.4rem;
+            }
+            .dashboard {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .stat-card {
+                padding: 14px 12px;
+            }
+            .stat-card .stat-value {
+                font-size: 1.4rem;
+            }
+            .form-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .form-group {
+                min-width: 100%;
+            }
+            .bills-table,
+            .income-table {
+                font-size: 0.78rem;
+            }
+            .bills-table thead,
+            .income-table thead {
+                display: none;
+            }
+            .bills-table tbody tr,
+            .income-table tbody tr {
+                display: flex;
+                flex-wrap: wrap;
+                padding: 12px 0;
+                border-bottom: 1px solid var(--border);
+                gap: 4px 8px;
+            }
+            .bills-table tbody td,
+            .income-table tbody td {
+                padding: 3px 4px;
+                border: none;
+            }
+            .actions-cell {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <div class="icon-row">
+                <div class="logo-icon">📋</div>
+                <h1>Bill Tracker + Cash Flow</h1>
+            </div>
+            <p class="subtitle">Track bills, income & cash flow for Cochino & Pepona</p>
+        </div>
+
+        <!-- Overall Dashboard -->
+        <div class="dashboard" id="dashboard-overall">
+            <div class="stat-card total">
+                <div class="accent-line"></div>
+                <div class="stat-icon">💰</div>
+                <div class="stat-value" id="stat-total">$0</div>
+                <div class="stat-label">Total Bills This Month</div>
+            </div>
+            <div class="stat-card paid">
+                <div class="accent-line"></div>
+                <div class="stat-icon">✅</div>
+                <div class="stat-value" id="stat-paid">$0</div>
+                <div class="stat-label">Paid</div>
+            </div>
+            <div class="stat-card overdue">
+                <div class="accent-line"></div>
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-value" id="stat-overdue">$0</div>
+                <div class="stat-label">Overdue</div>
+            </div>
+            <div class="stat-card upcoming">
+                <div class="accent-line"></div>
+                <div class="stat-icon">📅</div>
+                <div class="stat-value" id="stat-upcoming">$0</div>
+                <div class="stat-label">Upcoming</div>
+            </div>
+        </div>
+
+        <!-- Person Dashboard (Responsibility) -->
+        <div class="dashboard person-dashboard" id="dashboard-person">
+            <div class="stat-card cochino">
+                <div class="accent-line" style="background:#ec4899;"></div>
+                <div class="stat-icon">🐷</div>
+                <div class="stat-value" id="stat-cochino">$0</div>
+                <div class="stat-label">Cochino's bill share</div>
+            </div>
+            <div class="stat-card pepona">
+                <div class="accent-line" style="background:#a855f7;"></div>
+                <div class="stat-icon">🐽</div>
+                <div class="stat-value" id="stat-pepona">$0</div>
+                <div class="stat-label">Pepona's bill share</div>
+            </div>
+        </div>
+
+        <!-- Month Selector -->
+        <div class="month-selector">
+            <button onclick="changeMonth(-1)" title="Previous Month">◀</button>
+            <span class="month-label" id="month-label">May 2026</span>
+            <button onclick="changeMonth(1)" title="Next Month">▶</button>
+            <button class="btn btn-outline btn-sm" onclick="goToCurrentMonth()">Today</button>
+        </div>
+
+        <!-- Income Section -->
+        <div class="income-section">
+            <div class="section-header">
+                <h3>💵 Expected Income This Month</h3>
+                <div class="income-summary">
+                    <span>Total: $<span id="income-total">0</span></span>
+                    <span>Received: $<span id="income-received">0</span></span>
+                    <span>Remaining: $<span id="income-remaining">0</span></span>
+                </div>
+            </div>
+            <div class="income-cards">
+                <div class="stat-card cochino">
+                    <div class="accent-line" style="background:#ec4899;"></div>
+                    <div class="stat-icon">🐷</div>
+                    <div class="stat-value" id="stat-income-cochino">$0</div>
+                    <div class="stat-label">Cochino's pay</div>
+                </div>
+                <div class="stat-card pepona">
+                    <div class="accent-line" style="background:#a855f7;"></div>
+                    <div class="stat-icon">🐽</div>
+                    <div class="stat-value" id="stat-income-pepona">$0</div>
+                    <div class="stat-label">Pepona's pay</div>
+                </div>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="income-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>From</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="income-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Cash Flow Chart Section -->
+        <div class="cashflow-section">
+            <div class="section-header">
+                <h3>📊 Cash Flow Projection</h3>
+                <div class="range-selector">
+                    <span>Time window:</span>
+                    <select id="cashflow-range" onchange="updateCashFlowRange()">
+                        <option value="1">1 Month</option>
+                        <option value="3" selected>3 Months</option>
+                        <option value="6">6 Months</option>
+                        <option value="12">12 Months</option>
+                    </select>
+                </div>
+            </div>
+            <div class="cashflow-canvas-wrap">
+                <canvas id="cashflow-canvas"></canvas>
+            </div>
+            <div class="balance-stat">
+                <div class="stat-card balance">
+                    <div class="accent-line" style="background:#22d3ee;"></div>
+                    <div class="stat-icon">⚖️</div>
+                    <div class="stat-value" id="stat-balance">$0</div>
+                    <div class="stat-label">Projected balance</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Bill Form -->
+        <div class="form-card" id="form-card">
+            <h3>➕ Add New Bill</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Bill Name</label>
+                    <input type="text" id="input-name" placeholder="e.g. Rent, Netflix, Day Care">
+                </div>
+                <div class="form-group" style="flex:0.7;">
+                    <label>Amount ($)</label>
+                    <input type="number" id="input-amount" placeholder="0.00" step="0.01" min="0">
+                </div>
+                <div class="form-group" style="flex:0.7;">
+                    <label>Due Date</label>
+                    <input type="date" id="input-date">
+                </div>
+                <div class="form-group" style="flex:0.8;">
+                    <label>Category</label>
+                    <select id="input-category">
+                        <option value="Housing">🏠 Housing</option>
+                        <option value="Utilities">⚡ Utilities</option>
+                        <option value="Subscriptions">📺 Subscriptions</option>
+                        <option value="Insurance">🛡️ Insurance</option>
+                        <option value="Loan">💳 Loan/Credit</option>
+                        <option value="Transport">🚗 Transport</option>
+                        <option value="Food">🍔 Food</option>
+                        <option value="Health">💊 Health</option>
+                        <option value="Miki Day Care">🧸 Miki Day Care</option>
+                        <option value="Other">📦 Other</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex:0.7;">
+                    <label>Recurring</label>
+                    <select id="input-recurring">
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="none">One-time</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex:0.8;">
+                    <label>Responsibility</label>
+                    <select id="input-responsibility">
+                        <option value="Cochino">🐷 Cochino</option>
+                        <option value="Pepona">🐽 Pepona</option>
+                        <option value="Shared">🤝 Shared</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="addBill()" id="btn-add">+ Add Bill</button>
+            </div>
+            <input type="hidden" id="edit-id" value="">
+        </div>
+
+        <!-- Bills List -->
+        <div class="bills-section">
+            <div class="section-header">
+                <h3>📋 Your Bills</h3>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all" onclick="setFilter('all', this)">All</button>
+                    <button class="filter-tab" data-filter="unpaid" onclick="setFilter('unpaid', this)">Unpaid</button>
+                    <button class="filter-tab" data-filter="paid" onclick="setFilter('paid', this)">Paid</button>
+                    <button class="filter-tab" data-filter="overdue" onclick="setFilter('overdue', this)">⚠️ Overdue</button>
+                </div>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="bills-table">
+                    <thead>
+                        <tr>
+                            <th>Bill</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Paid by</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bills-tbody">
+                        <tr class="empty-row">
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <div class="empty-icon">📭</div>
+                                    <p><strong>No bills added yet</strong></p>
+                                    <p>Add your first bill above to start tracking!</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <script>
+        (function() {
+            const BILLS_KEY = 'billtracker_bills_v4';
+            const INCOME_KEY = 'billtracker_income';
+            let bills = [];
+            let incomeSources = [];
+            let currentMonth = new Date().getMonth();
+            let currentYear = new Date().getFullYear();
+            let activeFilter = 'all';
+            let editingId = null;
+            let cashFlowMonths = 3; // default
+
+            const $tbody = document.getElementById('bills-tbody');
+            const $monthLabel = document.getElementById('month-label');
+            const $inputName = document.getElementById('input-name');
+            const $inputAmount = document.getElementById('input-amount');
+            const $inputDate = document.getElementById('input-date');
+            const $inputCategory = document.getElementById('input-category');
+            const $inputRecurring = document.getElementById('input-recurring');
+            const $inputResponsibility = document.getElementById('input-responsibility');
+            const $editId = document.getElementById('edit-id');
+            const $btnAdd = document.getElementById('btn-add');
+            const $formCard = document.getElementById('form-card');
+            const $toastContainer = document.getElementById('toast-container');
+            const $incomeTbody = document.getElementById('income-tbody');
+            const canvas = document.getElementById('cashflow-canvas');
+            const ctx = canvas.getContext('2d');
+
+            function loadBills() {
+                try {
+                    const raw = localStorage.getItem(BILLS_KEY);
+                    bills = raw ? JSON.parse(raw) : [];
+                    bills.forEach(b => {
+                        if (!b.responsibility) b.responsibility = 'Cochino';
+                        if (!b.paidPeriods) b.paidPeriods = [];
+                    });
+                } catch (e) { bills = []; }
+            }
+
+            function saveBills() {
+                localStorage.setItem(BILLS_KEY, JSON.stringify(bills));
+            }
+
+            function loadIncome() {
+                try {
+                    const raw = localStorage.getItem(INCOME_KEY);
+                    incomeSources = raw ? JSON.parse(raw) : [];
+                } catch (e) { incomeSources = []; }
+                if (incomeSources.length === 0) {
+                    incomeSources = [
+                        { id: 'inc_cochino', person: 'Cochino', amount: 2000, frequency: 'biweekly', startDate: '2026-05-08', description: 'Cochino bi‑weekly pay', receivedDates: [] },
+                        { id: 'inc_pepona', person: 'Pepona', amount: 2450, frequency: 'biweekly', startDate: '2026-05-08', description: 'Pepona bi‑weekly pay', receivedDates: [] }
+                    ];
+                    saveIncome();
+                }
+            }
+
+            function saveIncome() {
+                localStorage.setItem(INCOME_KEY, JSON.stringify(incomeSources));
+            }
+
+            function getMonthDateRange(month, year) {
+                return { start: new Date(year, month, 1), end: new Date(year, month + 1, 0) };
+            }
+
+            function getBillDueDateThisMonth(bill, month, year) {
+                const dueDay = parseInt(bill.dueDay);
+                const safeDay = Math.min(dueDay, new Date(year, month + 1, 0).getDate());
+                return new Date(year, month, safeDay);
+            }
+
+            function getBillStatus(bill, month, year) {
+                const dueDate = getBillDueDateThisMonth(bill, month, year);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                dueDate.setHours(0, 0, 0, 0);
+                const monthStart = new Date(year, month, 1);
+                monthStart.setHours(0, 0, 0, 0);
+                const monthEnd = new Date(year, month + 1, 0);
+                monthEnd.setHours(23, 59, 59, 999);
+                const paidKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+                const isPaid = bill.paidPeriods && bill.paidPeriods.includes(paidKey);
+                if (isPaid) return 'paid';
+                if (dueDate < today && dueDate < monthStart && bill.recurring === 'none') {
+                    if (dueDate < today) return 'overdue';
+                }
+                if (dueDate < today && dueDate >= monthStart) return 'overdue';
+                const diffDays = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                if (diffDays >= 0 && diffDays <= 5 && dueDate >= monthStart && dueDate <= monthEnd) return 'upcoming';
+                if (dueDate >= today && dueDate <= monthEnd) return 'future';
+                if (dueDate < monthStart) return 'past';
+                return 'future';
+            }
+
+            function getStatusLabel(status) {
+                const map = { paid: '✅ Paid', overdue: '⚠️ Overdue', upcoming: '🔔 Due Soon', future: '📅 Upcoming', past: '📁 Past' };
+                return map[status] || '📅 Upcoming';
+            }
+
+            function getStatusClass(status) {
+                const map = { paid: 'paid', overdue: 'overdue', upcoming: 'upcoming', future: 'future', past: 'future' };
+                return map[status] || 'future';
+            }
+
+            function getCategoryEmoji(cat) {
+                const map = {
+                    'Housing': '🏠', 'Utilities': '⚡', 'Subscriptions': '📺', 'Insurance': '🛡️',
+                    'Loan': '💳', 'Credit': '💳', 'Transport': '🚗', 'Food': '🍔', 'Health': '💊',
+                    'Miki Day Care': '🧸', 'Other': '📦'
+                };
+                return map[cat] || '📦';
+            }
+
+            function showToast(message) {
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.textContent = message;
+                $toastContainer.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transition = 'opacity 0.3s';
+                    setTimeout(() => toast.remove(), 300);
+                }, 2500);
+            }
+
+            // ──────────────────────────────────────
+            // INCOME LOGIC (current month only)
+            // ──────────────────────────────────────
+            function computePaydays(source, month, year) {
+                const paydays = [];
+                const startDate = new Date(source.startDate + 'T00:00:00');
+                const monthStart = new Date(year, month, 1);
+                const monthEnd = new Date(year, month + 1, 0);
+                let current = new Date(startDate);
+                while (current < monthStart) {
+                    if (source.frequency === 'biweekly') current.setDate(current.getDate() + 14);
+                    else break;
+                }
+                while (current <= monthEnd) {
+                    paydays.push(new Date(current));
+                    current.setDate(current.getDate() + 14);
+                }
+                return paydays;
+            }
+
+            function isPaydayReceived(source, date) {
+                const dateStr = date.toISOString().split('T')[0];
+                return source.receivedDates && source.receivedDates.includes(dateStr);
+            }
+
+            function togglePaydayReceived(sourceId, dateStr) {
+                const source = incomeSources.find(s => s.id === sourceId);
+                if (!source) return;
+                if (!source.receivedDates) source.receivedDates = [];
+                const idx = source.receivedDates.indexOf(dateStr);
+                if (idx >= 0) source.receivedDates.splice(idx, 1);
+                else source.receivedDates.push(dateStr);
+                saveIncome();
+                renderAll();
+            }
+
+            function renderIncomeSection() {
+                const allPaydays = [];
+                incomeSources.forEach(source => {
+                    computePaydays(source, currentMonth, currentYear).forEach(date => {
+                        allPaydays.push({
+                            sourceId: source.id,
+                            person: source.person,
+                            amount: source.amount,
+                            date,
+                            received: isPaydayReceived(source, date)
+                        });
+                    });
+                });
+                allPaydays.sort((a, b) => a.date - b.date);
+
+                $incomeTbody.innerHTML = '';
+                if (allPaydays.length === 0) {
+                    $incomeTbody.innerHTML = `<tr><td colspan="5" class="empty-state"><div class="empty-icon">📭</div>No paydays this month.</td></tr>`;
+                } else {
+                    allPaydays.forEach(pay => {
+                        const dateStr = pay.date.toISOString().split('T')[0];
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${pay.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</td>
+                            <td>${pay.person === 'Cochino' ? '🐷 Cochino' : '🐽 Pepona'}</td>
+                            <td><span class="amount">$${pay.amount.toFixed(2)}</span></td>
+                            <td><span class="pay-status ${pay.received ? 'received' : 'expected'}">${pay.received ? '✅ Received' : '⏳ Expected'}</span></td>
+                            <td>
+                                <button class="btn btn-sm ${pay.received ? 'btn-outline' : 'btn-success'}" onclick="togglePaydayReceived('${pay.sourceId}', '${dateStr}')">
+                                    ${pay.received ? '↩ Undo' : '✓ Mark received'}
+                                </button>
+                            </td>`;
+                        $incomeTbody.appendChild(tr);
+                    });
+                }
+
+                let total = 0, received = 0;
+                allPaydays.forEach(p => { total += p.amount; if (p.received) received += p.amount; });
+                document.getElementById('income-total').textContent = total.toFixed(2);
+                document.getElementById('income-received').textContent = received.toFixed(2);
+                document.getElementById('income-remaining').textContent = (total - received).toFixed(2);
+
+                let cochino = 0, pepona = 0;
+                allPaydays.forEach(p => {
+                    if (p.person === 'Cochino') cochino += p.amount;
+                    else pepona += p.amount;
+                });
+                document.getElementById('stat-income-cochino').textContent = '$' + cochino.toFixed(2);
+                document.getElementById('stat-income-pepona').textContent = '$' + pepona.toFixed(2);
+            }
+
+            // ──────────────────────────────────────
+            // BILLS LOGIC
+            // ──────────────────────────────────────
+            function getAllRelevantBills() {
+                const { start, end } = getMonthDateRange(currentMonth, currentYear);
+                const monthStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+                const relevant = [];
+                const seen = new Set();
+                bills.forEach(bill => {
+                    const status = getBillStatus(bill, currentMonth, currentYear);
+                    const dueDate = getBillDueDateThisMonth(bill, currentMonth, currentYear);
+                    const isRecurring = bill.recurring !== 'none';
+                    const dueInMonth = dueDate >= start && dueDate <= end;
+                    const isOverdueUnpaid = status === 'overdue';
+                    if (isRecurring || dueInMonth || (isOverdueUnpaid && dueDate < start)) {
+                        const key = `${bill.id}-${monthStr}`;
+                        if (!seen.has(key)) {
+                            seen.add(key);
+                            relevant.push({ bill, status, dueDate });
+                        }
+                    }
+                });
+                return relevant;
+            }
+
+            function getFilteredBills() {
+                const all = getAllRelevantBills();
+                let filtered = all;
+                if (activeFilter === 'paid') filtered = all.filter(i => i.status === 'paid');
+                if (activeFilter === 'unpaid') filtered = all.filter(i => i.status !== 'paid');
+                if (activeFilter === 'overdue') filtered = all.filter(i => i.status === 'overdue');
+                const order = { overdue: 0, upcoming: 1, future: 2, past: 3, paid: 4 };
+                filtered.sort((a, b) => (order[a.status] ?? 5) - (order[b.status] ?? 5) || a.dueDate - b.dueDate);
+                return filtered;
+            }
+
+            function renderAll() {
+                renderMonthLabel();
+                renderTable();
+                renderOverallDashboard();
+                renderPersonDashboard();
+                renderIncomeSection();
+                renderCashFlowChart();
+                updateFormButton();
+            }
+
+            function renderMonthLabel() {
+                $monthLabel.textContent = new Date(currentYear, currentMonth, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            }
+
+            function renderTable() {
+                const filtered = getFilteredBills();
+                $tbody.innerHTML = '';
+                if (!filtered.length) {
+                    $tbody.innerHTML = `<tr class="empty-row"><td colspan="7"><div class="empty-state"><div class="empty-icon">📭</div><p><strong>No bills found</strong></p></div></td></tr>`;
+                    return;
+                }
+                filtered.forEach(({ bill, status, dueDate }) => {
+                    const tr = document.createElement('tr');
+                    const paidKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+                    const isPaid = status === 'paid';
+                    const resp = bill.responsibility === 'Cochino' ? '🐷 Cochino' : bill.responsibility === 'Pepona' ? '🐽 Pepona' : '🤝 Shared';
+                    tr.innerHTML = `
+                        <td><span class="bill-name">${escapeHtml(bill.name)}</span></td>
+                        <td><span class="bill-category">${getCategoryEmoji(bill.category)} ${escapeHtml(bill.category)}</span></td>
+                        <td><span class="amount">$${parseFloat(bill.amount).toFixed(2)}</span></td>
+                        <td><span class="due-date">${dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span></td>
+                        <td><span class="status-badge ${getStatusClass(status)}">${getStatusLabel(status)}</span></td>
+                        <td>${resp}</td>
+                        <td class="actions-cell">
+                            ${!isPaid ? `<button class="btn btn-success btn-sm" onclick="markPaid('${bill.id}')">✓ Paid</button>` : `<button class="btn btn-outline btn-sm" onclick="markUnpaid('${bill.id}')">↩ Undo</button>`}
+                            <button class="btn btn-outline btn-sm" onclick="editBill('${bill.id}')">✏️</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteBill('${bill.id}')">🗑</button>
+                        </td>`;
+                    $tbody.appendChild(tr);
+                });
+            }
+
+            function renderOverallDashboard() {
+                const all = getAllRelevantBills();
+                let total = 0, paid = 0, overdue = 0, upcoming = 0;
+                all.forEach(({ bill, status }) => {
+                    const amt = parseFloat(bill.amount) || 0;
+                    total += amt;
+                    if (status === 'paid') paid += amt;
+                    if (status === 'overdue') overdue += amt;
+                    if (status === 'upcoming') upcoming += amt;
+                });
+                document.getElementById('stat-total').textContent = '$' + total.toFixed(2);
+                document.getElementById('stat-paid').textContent = '$' + paid.toFixed(2);
+                document.getElementById('stat-overdue').textContent = '$' + overdue.toFixed(2);
+                document.getElementById('stat-upcoming').textContent = '$' + upcoming.toFixed(2);
+            }
+
+            function renderPersonDashboard() {
+                const all = getAllRelevantBills();
+                let cochino = 0, pepona = 0;
+                all.forEach(({ bill }) => {
+                    const amt = parseFloat(bill.amount) || 0;
+                    if (bill.responsibility === 'Cochino') cochino += amt;
+                    else if (bill.responsibility === 'Pepona') pepona += amt;
+                    else { cochino += amt / 2; pepona += amt / 2; }
+                });
+                document.getElementById('stat-cochino').textContent = '$' + cochino.toFixed(2);
+                document.getElementById('stat-pepona').textContent = '$' + pepona.toFixed(2);
+            }
+
+            function updateFormButton() {
+                $btnAdd.textContent = editingId ? '✏️ Update Bill' : '+ Add Bill';
+                $btnAdd.style.background = editingId ? '#f59e0b' : '';
+                $formCard.querySelector('h3').textContent = editingId ? '✏️ Edit Bill' : '➕ Add New Bill';
+            }
+
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            // ──────────────────────────────────────
+            // DYNAMIC CASH FLOW CHART (projection)
+            // ──────────────────────────────────────
+            function renderCashFlowChart() {
+                const today = new Date();
+                const startMonth = today.getMonth();
+                const startYear = today.getFullYear();
+                const startDate = new Date(startYear, startMonth, 1);
+                const endDate = new Date(startYear, startMonth + cashFlowMonths, 0); // last day of last month
+
+                // generate all dates from startDate to endDate
+                const dates = [];
+                let d = new Date(startDate);
+                while (d <= endDate) {
+                    dates.push(new Date(d));
+                    d.setDate(d.getDate() + 1);
+                }
+                const totalDays = dates.length;
+                const dailyIncome = new Array(totalDays).fill(0);
+                const dailyExpenses = new Array(totalDays).fill(0);
+
+                // Income: all paydays within range
+                incomeSources.forEach(source => {
+                    let current = new Date(source.startDate + 'T00:00:00');
+                    // advance to startDate range
+                    while (current < startDate && source.frequency === 'biweekly') {
+                        current.setDate(current.getDate() + 14);
+                    }
+                    while (current <= endDate) {
+                        const idx = Math.floor((current - startDate) / (1000 * 60 * 60 * 24));
+                        if (idx >= 0 && idx < totalDays) {
+                            dailyIncome[idx] += source.amount;
+                        }
+                        if (source.frequency === 'biweekly') current.setDate(current.getDate() + 14);
+                        else break;
+                    }
+                });
+
+                // Expenses: all bills (unpaid) in the projection
+                bills.forEach(bill => {
+                    if (bill.recurring === 'none') {
+                        const dueDate = new Date(bill.dueDateFull + 'T00:00:00');
+                        if (dueDate >= startDate && dueDate <= endDate) {
+                            const monthStr = `${dueDate.getFullYear()}-${String(dueDate.getMonth()+1).padStart(2,'0')}`;
+                            const alreadyPaid = bill.paidPeriods && bill.paidPeriods.includes(monthStr);
+                            if (!alreadyPaid) {
+                                const idx = Math.floor((dueDate - startDate) / (1000 * 60 * 60 * 24));
+                                if (idx >= 0 && idx < totalDays) dailyExpenses[idx] += parseFloat(bill.amount) || 0;
+                            }
+                        }
+                    } else {
+                        // recurring: generate due dates for each month in range
+                        let month = startMonth;
+                        let year = startYear;
+                        const lastMonth = endDate.getMonth();
+                        const lastYear = endDate.getFullYear();
+                        while (year < lastYear || (year === lastYear && month <= lastMonth)) {
+                            const dueDate = getBillDueDateThisMonth(bill, month, year);
+                            if (dueDate >= startDate && dueDate <= endDate) {
+                                const monthStr = `${year}-${String(month+1).padStart(2,'0')}`;
+                                const alreadyPaid = bill.paidPeriods && bill.paidPeriods.includes(monthStr);
+                                if (!alreadyPaid) {
+                                    const idx = Math.floor((dueDate - startDate) / (1000 * 60 * 60 * 24));
+                                    if (idx >= 0 && idx < totalDays) dailyExpenses[idx] += parseFloat(bill.amount) || 0;
+                                }
+                            }
+                            month++;
+                            if (month > 11) { month = 0; year++; }
+                        }
+                    }
+                });
+
+                // cumulative arrays
+                const cumIncome = [];
+                const cumExpenses = [];
+                const cumBalance = [];
+                let runningIncome = 0, runningExpense = 0;
+                for (let i = 0; i < totalDays; i++) {
+                    runningIncome += dailyIncome[i];
+                    runningExpense += dailyExpenses[i];
+                    cumIncome.push(runningIncome);
+                    cumExpenses.push(runningExpense);
+                    cumBalance.push(runningIncome - runningExpense);
+                }
+
+                const finalBalance = cumBalance[cumBalance.length - 1] || 0;
+                document.getElementById('stat-balance').textContent = '$' + finalBalance.toFixed(2);
+
+                // draw canvas
+                const container = canvas.parentNode;
+                const rect = container.getBoundingClientRect();
+                canvas.width = rect.width;
+                canvas.height = rect.height || 300;
+                const width = canvas.width;
+                const height = canvas.height;
+                const pad = { top: 20, right: 30, bottom: 45, left: 70 };
+                const chartW = width - pad.left - pad.right;
+                const chartH = height - pad.top - pad.bottom;
+
+                ctx.clearRect(0, 0, width, height);
+                if (totalDays === 0) return;
+
+                const maxVal = Math.max(...cumIncome, ...cumExpenses, 0);
+                const yMax = maxVal * 1.1 || 100;
+                const xStep = chartW / (totalDays - 1 || 1);
+                function xPos(dayIdx) { return pad.left + dayIdx * xStep; }
+                function yPos(val) { return pad.top + chartH - (val / yMax) * chartH; }
+
+                // grid
+                ctx.strokeStyle = '#2a2a45';
+                ctx.lineWidth = 0.5;
+                for (let i = 0; i <= 5; i++) {
+                    const y = pad.top + (i / 5) * chartH;
+                    ctx.beginPath();
+                    ctx.moveTo(pad.left, y);
+                    ctx.lineTo(width - pad.right, y);
+                    ctx.stroke();
+                    const val = yMax - (i / 5) * yMax;
+                    ctx.fillStyle = '#a0a0b8';
+                    ctx.font = '10px Inter, sans-serif';
+                    ctx.fillText('$' + Math.round(val), pad.left - 65, y + 3);
+                }
+
+                // x-axis labels (first day of each month)
+                ctx.fillStyle = '#a0a0b8';
+                ctx.font = '10px Inter, sans-serif';
+                let currentLabelMonth = -1;
+                for (let i = 0; i < totalDays; i++) {
+                    const date = dates[i];
+                    if (date.getDate() === 1 || i === 0) {
+                        const x = xPos(i);
+                        ctx.fillText(date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }), x - 15, height - pad.bottom + 15);
+                    }
+                }
+
+                function drawLine(data, color, dash = []) {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2.5;
+                    ctx.setLineDash(dash);
+                    ctx.beginPath();
+                    let first = true;
+                    for (let i = 0; i < totalDays; i++) {
+                        const x = xPos(i);
+                        const y = yPos(data[i]);
+                        if (first) { ctx.moveTo(x, y); first = false; }
+                        else ctx.lineTo(x, y);
+                    }
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+
+                drawLine(cumIncome, '#10b981');
+                drawLine(cumExpenses, '#ef4444');
+                drawLine(cumBalance, '#22d3ee', [6, 4]);
+
+                // legend
+                const legX = pad.left + 10, legY = pad.top + 5;
+                ctx.font = '11px Inter, sans-serif';
+                ctx.fillStyle = '#10b981'; ctx.fillRect(legX, legY, 12, 12);
+                ctx.fillStyle = '#fff'; ctx.fillText('Income', legX + 18, legY + 10);
+                ctx.fillStyle = '#ef4444'; ctx.fillRect(legX + 95, legY, 12, 12);
+                ctx.fillStyle = '#fff'; ctx.fillText('Bills', legX + 113, legY + 10);
+                ctx.fillStyle = '#22d3ee'; ctx.fillRect(legX + 175, legY, 12, 12);
+                ctx.fillText('Balance', legX + 193, legY + 10);
+            }
+
+            window.updateCashFlowRange = function() {
+                cashFlowMonths = parseInt(document.getElementById('cashflow-range').value);
+                renderCashFlowChart();
+            };
+
+            window.addEventListener('resize', () => renderCashFlowChart());
+
+            // ──────────────────────────────────────
+            // BILL ACTIONS
+            // ──────────────────────────────────────
+            window.addBill = function() {
+                const name = $inputName.value.trim();
+                const amountStr = $inputAmount.value.trim();
+                const dateVal = $inputDate.value;
+                const category = $inputCategory.value;
+                const recurring = $inputRecurring.value;
+                const responsibility = $inputResponsibility.value;
+                if (!name) { showToast('Enter bill name.'); $inputName.focus(); return; }
+                if (!amountStr || parseFloat(amountStr) < 0) { showToast('Enter valid amount.'); $inputAmount.focus(); return; }
+                if (!dateVal) { showToast('Select due date.'); $inputDate.focus(); return; }
+                const amount = parseFloat(amountStr).toFixed(2);
+                const dueDate = new Date(dateVal + 'T00:00:00');
+                const dueDay = dueDate.getDate();
+                if (editingId) {
+                    const idx = bills.findIndex(b => b.id === editingId);
+                    if (idx >= 0) {
+                        bills[idx].name = name;
+                        bills[idx].amount = amount;
+                        bills[idx].dueDay = dueDay;
+                        bills[idx].dueDateFull = dateVal;
+                        bills[idx].category = category;
+                        bills[idx].recurring = recurring;
+                        bills[idx].responsibility = responsibility;
+                        showToast('✅ Bill updated!');
+                    }
+                    editingId = null;
+                    $editId.value = '';
+                } else {
+                    bills.push({
+                        id: 'bill_' + Date.now() + '_' + Math.random().toString(36).substr(2,6),
+                        name, amount, dueDay, dueDateFull: dateVal, category, recurring, responsibility,
+                        paidPeriods: [], createdAt: new Date().toISOString()
+                    });
+                    showToast('✅ Bill added!');
+                }
+                saveBills();
+                clearForm();
+                renderAll();
+            };
+
+            window.editBill = function(id) {
+                const bill = bills.find(b => b.id === id);
+                if (!bill) return;
+                editingId = id;
+                $editId.value = id;
+                $inputName.value = bill.name;
+                $inputAmount.value = bill.amount;
+                $inputDate.value = bill.dueDateFull || '';
+                $inputCategory.value = bill.category;
+                $inputRecurring.value = bill.recurring;
+                $inputResponsibility.value = bill.responsibility || 'Cochino';
+                updateFormButton();
+                $formCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                $inputName.focus();
+            };
+
+            window.deleteBill = function(id) {
+                if (!confirm('Delete this bill?')) return;
+                bills = bills.filter(b => b.id !== id);
+                if (editingId === id) { editingId = null; $editId.value = ''; clearForm(); }
+                saveBills();
+                renderAll();
+                showToast('🗑 Bill deleted.');
+            };
+
+            window.markPaid = function(id) {
+                const paidKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+                const bill = bills.find(b => b.id === id);
+                if (!bill) return;
+                if (!bill.paidPeriods) bill.paidPeriods = [];
+                if (!bill.paidPeriods.includes(paidKey)) {
+                    bill.paidPeriods.push(paidKey);
+                    saveBills();
+                    renderAll();
+                    showToast('✅ Marked as paid.');
+                }
+            };
+
+            window.markUnpaid = function(id) {
+                const paidKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+                const bill = bills.find(b => b.id === id);
+                if (!bill) return;
+                bill.paidPeriods = (bill.paidPeriods || []).filter(p => p !== paidKey);
+                saveBills();
+                renderAll();
+                showToast('↩ Payment undone.');
+            };
+
+            function clearForm() {
+                $inputName.value = '';
+                $inputAmount.value = '';
+                $inputDate.value = '';
+                $inputCategory.value = 'Housing';
+                $inputRecurring.value = 'monthly';
+                $inputResponsibility.value = 'Cochino';
+                editingId = null;
+                $editId.value = '';
+                updateFormButton();
+            }
+
+            window.setFilter = function(filter, btn) {
+                activeFilter = filter;
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                btn.classList.add('active');
+                renderAll();
+            };
+
+            window.changeMonth = function(delta) {
+                currentMonth += delta;
+                if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+                else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+                if (editingId) { editingId = null; $editId.value = ''; clearForm(); }
+                renderAll();
+            };
+
+            window.goToCurrentMonth = function() {
+                const now = new Date();
+                currentMonth = now.getMonth();
+                currentYear = now.getFullYear();
+                if (editingId) { editingId = null; $editId.value = ''; clearForm(); }
+                renderAll();
+            };
+
+            window.togglePaydayReceived = togglePaydayReceived;
+
+            function init() {
+                loadBills();
+                loadIncome();
+                const today = new Date();
+                $inputDate.value = today.toISOString().split('T')[0];
+                $inputResponsibility.value = 'Cochino';
+                document.getElementById('cashflow-range').value = cashFlowMonths;
+                renderAll();
+                updateFormButton();
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && document.activeElement && document.activeElement.closest('#form-card')) {
+                        e.preventDefault();
+                        window.addBill();
+                    }
+                    if (e.key === 'Escape' && editingId) {
+                        editingId = null; $editId.value = ''; clearForm(); renderAll();
+                        showToast('Editing cancelled.');
+                    }
+                });
+            }
+            init();
+        })();
+    </script>
+</body>
+</html>
