@@ -903,10 +903,33 @@
 
     <div class="toast-container" id="toast-container"></div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+        import {
+            getFirestore,
+            collection,
+            getDocs,
+            setDoc,
+            doc,
+            deleteDoc,
+            writeBatch
+        } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
         (function() {
-            const BILLS_KEY = 'billtracker_bills_v4';
-            const INCOME_KEY = 'billtracker_income';
+            const firebaseConfig = {
+                apiKey: "AIzaSyBSisyNE5CfP8-rEGG83O4wf2OjO6x0ehA",
+                authDomain: "family-budget-f64d1.firebaseapp.com",
+                projectId: "family-budget-f64d1",
+                storageBucket: "family-budget-f64d1.firebasestorage.app",
+                messagingSenderId: "134606568000",
+                appId: "1:134606568000:web:43d77ec5193dcdd6683da5"
+            };
+
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+
+            const BILLS_COL = 'bills';
+            const INCOME_COL = 'income';
             let bills = [];
             let incomeSources = [];
             let currentMonth = new Date().getMonth();
@@ -931,37 +954,74 @@
             const canvas = document.getElementById('cashflow-canvas');
             const ctx = canvas.getContext('2d');
 
-            function loadBills() {
+            function initDefaultBills() {
+                bills = [];
+            }
+
+            function initDefaultIncome() {
+                incomeSources = [
+                    { id: 'inc_cochino', person: 'Cochino', amount: 2000, frequency: 'biweekly', startDate: '2026-05-08', description: 'Cochino bi‑weekly pay', receivedDates: [] },
+                    { id: 'inc_pepona', person: 'Pepona', amount: 2450, frequency: 'biweekly', startDate: '2026-05-08', description: 'Pepona bi‑weekly pay', receivedDates: [] }
+                ];
+            }
+
+            async function loadBills() {
                 try {
-                    const raw = localStorage.getItem(BILLS_KEY);
-                    bills = raw ? JSON.parse(raw) : [];
+                    const snapshot = await getDocs(collection(db, BILLS_COL));
+                    bills = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    if (bills.length === 0) initDefaultBills();
                     bills.forEach(b => {
                         if (!b.responsibility) b.responsibility = 'Cochino';
                         if (!b.paidPeriods) b.paidPeriods = [];
                     });
-                } catch (e) { bills = []; }
-            }
-
-            function saveBills() {
-                localStorage.setItem(BILLS_KEY, JSON.stringify(bills));
-            }
-
-            function loadIncome() {
-                try {
-                    const raw = localStorage.getItem(INCOME_KEY);
-                    incomeSources = raw ? JSON.parse(raw) : [];
-                } catch (e) { incomeSources = []; }
-                if (incomeSources.length === 0) {
-                    incomeSources = [
-                        { id: 'inc_cochino', person: 'Cochino', amount: 2000, frequency: 'biweekly', startDate: '2026-05-08', description: 'Cochino bi‑weekly pay', receivedDates: [] },
-                        { id: 'inc_pepona', person: 'Pepona', amount: 2450, frequency: 'biweekly', startDate: '2026-05-08', description: 'Pepona bi‑weekly pay', receivedDates: [] }
-                    ];
-                    saveIncome();
+                } catch (e) {
+                    console.error('Error loading bills:', e);
+                    bills = [];
+                    initDefaultBills();
                 }
             }
 
-            function saveIncome() {
-                localStorage.setItem(INCOME_KEY, JSON.stringify(incomeSources));
+            async function saveBills() {
+                const batch = writeBatch(db);
+                const existing = await getDocs(collection(db, BILLS_COL));
+                existing.forEach(document => batch.delete(document.ref));
+                bills.forEach(bill => {
+                    const docRef = doc(collection(db, BILLS_COL));
+                    batch.set(docRef, bill);
+                });
+                await batch.commit();
+            }
+
+            async function loadIncome() {
+                try {
+                    const snapshot = await getDocs(collection(db, INCOME_COL));
+                    if (snapshot.empty) {
+                        incomeSources = [];
+                        initDefaultIncome();
+                        await saveIncome();
+                        return;
+                    }
+                    incomeSources = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                } catch (e) {
+                    console.error('Error loading income:', e);
+                    incomeSources = [];
+                    initDefaultIncome();
+                }
+            }
+
+            async function saveIncome() {
+                const batch = writeBatch(db);
+                const existing = await getDocs(collection(db, INCOME_COL));
+                existing.forEach(document => batch.delete(document.ref));
+                incomeSources.forEach(src => {
+                    if (src.id) {
+                        batch.set(doc(collection(db, INCOME_COL), src.id), src);
+                    } else {
+                        const docRef = doc(collection(db, INCOME_COL));
+                        batch.set(docRef, src);
+                    }
+                });
+                await batch.commit();
             }
 
             function getMonthDateRange(month, year) {
@@ -1536,8 +1596,6 @@
             window.togglePaydayReceived = togglePaydayReceived;
 
             function init() {
-                loadBills();
-                loadIncome();
                 const today = new Date();
                 $inputDate.value = today.toISOString().split('T')[0];
                 $inputResponsibility.value = 'Cochino';
@@ -1555,7 +1613,11 @@
                     }
                 });
             }
-            init();
+            (async () => {
+                await loadBills();
+                await loadIncome();
+                init();
+            })();
         })();
     </script>
 </body>
