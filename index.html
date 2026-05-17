@@ -76,6 +76,96 @@
             position: relative;
             z-index: 1;
         }
+        .app-container[hidden],
+        .auth-view[hidden] {
+            display: none;
+        }
+
+        .auth-view {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            position: relative;
+            z-index: 1;
+        }
+        .auth-card {
+            width: min(100%, 420px);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 28px;
+        }
+        .auth-card .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+            margin-bottom: 14px;
+        }
+        .auth-card h1 {
+            color: #fff;
+            font-size: 1.6rem;
+            line-height: 1.2;
+            margin-bottom: 6px;
+        }
+        .auth-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 22px;
+        }
+        .auth-form {
+            display: grid;
+            gap: 14px;
+        }
+        .auth-form .btn {
+            width: 100%;
+            justify-content: center;
+        }
+        .auth-message {
+            min-height: 20px;
+            color: var(--warning);
+            font-size: 0.86rem;
+        }
+        .auth-switch {
+            margin-top: 18px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .link-button {
+            background: none;
+            border: none;
+            color: var(--accent-hover);
+            cursor: pointer;
+            font: inherit;
+            font-weight: 700;
+            padding: 0;
+        }
+        .user-bar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 4px;
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+        }
+        .user-email {
+            color: #fff;
+            font-weight: 700;
+            max-width: 280px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
 
         .header {
             text-align: center;
@@ -631,6 +721,17 @@
             .app-container {
                 padding: 12px 10px 30px;
             }
+            .auth-view {
+                padding: 16px;
+            }
+            .auth-card {
+                padding: 22px;
+            }
+            .user-bar {
+                justify-content: center;
+                flex-wrap: wrap;
+                margin-top: 6px;
+            }
             .header h1 {
                 font-size: 1.4rem;
             }
@@ -680,7 +781,35 @@
     </style>
 </head>
 <body>
-    <div class="app-container">
+    <div class="auth-view" id="auth-view">
+        <div class="auth-card">
+            <div class="logo-icon">ðŸ“‹</div>
+            <h1 id="auth-title">Sign in to Family Budget</h1>
+            <p>Your bills, income, and cash flow stay tied to your account.</p>
+            <form class="auth-form" id="auth-form">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="auth-email" autocomplete="email" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="auth-password" autocomplete="current-password" placeholder="At least 6 characters" required>
+                </div>
+                <button class="btn btn-primary" type="submit" id="auth-submit">Sign In</button>
+                <div class="auth-message" id="auth-message" role="alert"></div>
+            </form>
+            <div class="auth-switch">
+                <span id="auth-switch-text">Need an account?</span>
+                <button class="link-button" id="auth-toggle" type="button">Create one</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container" id="app-container" hidden>
+        <div class="user-bar">
+            <span>Signed in as <span class="user-email" id="user-email"></span></span>
+            <button class="btn btn-outline btn-sm" id="btn-sign-out" type="button">Sign out</button>
+        </div>
         <div class="header">
             <div class="icon-row">
                 <div class="logo-icon">📋</div>
@@ -906,12 +1035,17 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
         import {
+            getAuth,
+            onAuthStateChanged,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+        import {
             getFirestore,
             collection,
             getDocs,
-            setDoc,
             doc,
-            deleteDoc,
             writeBatch
         } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
@@ -926,10 +1060,12 @@
             };
 
             const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
             const db = getFirestore(app);
 
             const BILLS_COL = 'bills';
             const INCOME_COL = 'income';
+            let currentUser = null;
             let bills = [];
             let incomeSources = [];
             let currentMonth = new Date().getMonth();
@@ -951,8 +1087,22 @@
             const $formCard = document.getElementById('form-card');
             const $toastContainer = document.getElementById('toast-container');
             const $incomeTbody = document.getElementById('income-tbody');
+            const $authView = document.getElementById('auth-view');
+            const $appContainer = document.getElementById('app-container');
+            const $authForm = document.getElementById('auth-form');
+            const $authTitle = document.getElementById('auth-title');
+            const $authEmail = document.getElementById('auth-email');
+            const $authPassword = document.getElementById('auth-password');
+            const $authSubmit = document.getElementById('auth-submit');
+            const $authMessage = document.getElementById('auth-message');
+            const $authToggle = document.getElementById('auth-toggle');
+            const $authSwitchText = document.getElementById('auth-switch-text');
+            const $userEmail = document.getElementById('user-email');
+            const $btnSignOut = document.getElementById('btn-sign-out');
             const canvas = document.getElementById('cashflow-canvas');
             const ctx = canvas.getContext('2d');
+            let isSignUpMode = false;
+            let appEventsBound = false;
 
             function initDefaultBills() {
                 bills = [];
@@ -965,9 +1115,47 @@
                 ];
             }
 
+            function userCollection(name) {
+                if (!currentUser) throw new Error('You must be signed in first.');
+                return collection(db, 'users', currentUser.uid, name);
+            }
+
+            function resetBudgetState() {
+                bills = [];
+                incomeSources = [];
+                editingId = null;
+                $editId.value = '';
+                $tbody.innerHTML = '';
+                $incomeTbody.innerHTML = '';
+            }
+
+            function setAuthMode(signUp) {
+                isSignUpMode = signUp;
+                $authTitle.textContent = signUp ? 'Create your Family Budget account' : 'Sign in to Family Budget';
+                $authSubmit.textContent = signUp ? 'Create Account' : 'Sign In';
+                $authSwitchText.textContent = signUp ? 'Already have an account?' : 'Need an account?';
+                $authToggle.textContent = signUp ? 'Sign in' : 'Create one';
+                $authPassword.autocomplete = signUp ? 'new-password' : 'current-password';
+                $authMessage.textContent = '';
+            }
+
+            function getAuthErrorMessage(error) {
+                const code = error && error.code ? error.code : '';
+                const messages = {
+                    'auth/email-already-in-use': 'That email already has an account.',
+                    'auth/invalid-email': 'Enter a valid email address.',
+                    'auth/invalid-credential': 'Email or password is not correct.',
+                    'auth/operation-not-allowed': 'Enable Email/Password sign-in in Firebase first.',
+                    'auth/weak-password': 'Use a password with at least 6 characters.',
+                    'auth/missing-password': 'Enter your password.',
+                    'auth/network-request-failed': 'Network error. Try again in a moment.'
+                };
+                return messages[code] || 'Authentication failed. Please try again.';
+            }
+
             async function loadBills() {
                 try {
-                    const snapshot = await getDocs(collection(db, BILLS_COL));
+                    const snapshot = await getDocs(userCollection(BILLS_COL));
                     bills = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     if (bills.length === 0) initDefaultBills();
                     bills.forEach(b => {
@@ -982,11 +1170,13 @@
             }
 
             async function saveBills() {
+                if (!currentUser) return;
                 const batch = writeBatch(db);
-                const existing = await getDocs(collection(db, BILLS_COL));
+                const billsRef = userCollection(BILLS_COL);
+                const existing = await getDocs(billsRef);
                 existing.forEach(document => batch.delete(document.ref));
                 bills.forEach(bill => {
-                    const docRef = doc(collection(db, BILLS_COL));
+                    const docRef = doc(billsRef, bill.id);
                     batch.set(docRef, bill);
                 });
                 await batch.commit();
@@ -994,7 +1184,7 @@
 
             async function loadIncome() {
                 try {
-                    const snapshot = await getDocs(collection(db, INCOME_COL));
+                    const snapshot = await getDocs(userCollection(INCOME_COL));
                     if (snapshot.empty) {
                         incomeSources = [];
                         initDefaultIncome();
@@ -1010,14 +1200,16 @@
             }
 
             async function saveIncome() {
+                if (!currentUser) return;
                 const batch = writeBatch(db);
-                const existing = await getDocs(collection(db, INCOME_COL));
+                const incomeRef = userCollection(INCOME_COL);
+                const existing = await getDocs(incomeRef);
                 existing.forEach(document => batch.delete(document.ref));
                 incomeSources.forEach(src => {
                     if (src.id) {
-                        batch.set(doc(collection(db, INCOME_COL), src.id), src);
+                        batch.set(doc(incomeRef, src.id), src);
                     } else {
-                        const docRef = doc(collection(db, INCOME_COL));
+                        const docRef = doc(incomeRef);
                         batch.set(docRef, src);
                     }
                 });
@@ -1602,6 +1794,8 @@
                 document.getElementById('cashflow-range').value = cashFlowMonths;
                 renderAll();
                 updateFormButton();
+                if (appEventsBound) return;
+                appEventsBound = true;
                 document.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter' && document.activeElement && document.activeElement.closest('#form-card')) {
                         e.preventDefault();
@@ -1613,11 +1807,60 @@
                     }
                 });
             }
-            (async () => {
-                await loadBills();
-                await loadIncome();
-                init();
-            })();
+
+            $authToggle.addEventListener('click', () => {
+                setAuthMode(!isSignUpMode);
+            });
+
+            $authForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const email = $authEmail.value.trim();
+                const password = $authPassword.value;
+                $authMessage.textContent = '';
+                $authSubmit.disabled = true;
+                $authSubmit.textContent = isSignUpMode ? 'Creating...' : 'Signing in...';
+                try {
+                    if (isSignUpMode) {
+                        await createUserWithEmailAndPassword(auth, email, password);
+                    } else {
+                        await signInWithEmailAndPassword(auth, email, password);
+                    }
+                    $authForm.reset();
+                } catch (error) {
+                    $authMessage.textContent = getAuthErrorMessage(error);
+                } finally {
+                    $authSubmit.disabled = false;
+                    $authSubmit.textContent = isSignUpMode ? 'Create Account' : 'Sign In';
+                }
+            });
+
+            $btnSignOut.addEventListener('click', async () => {
+                await signOut(auth);
+            });
+
+            onAuthStateChanged(auth, async (user) => {
+                currentUser = user;
+                if (!user) {
+                    resetBudgetState();
+                    $appContainer.hidden = true;
+                    $authView.hidden = false;
+                    $userEmail.textContent = '';
+                    setAuthMode(false);
+                    return;
+                }
+
+                $userEmail.textContent = user.email || 'Account';
+                $authView.hidden = true;
+                $appContainer.hidden = false;
+                try {
+                    await loadBills();
+                    await loadIncome();
+                    init();
+                } catch (error) {
+                    console.error('Error initializing account data:', error);
+                    showToast('Could not load your account data.');
+                }
+            });
         })();
     </script>
 </body>
