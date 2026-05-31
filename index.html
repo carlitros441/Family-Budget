@@ -785,7 +785,7 @@
         <div class="auth-card">
             <div class="logo-icon">ðŸ“‹</div>
             <h1 id="auth-title">Sign in to Family Budget</h1>
-            <p>Your bills, income, and cash flow stay tied to your account.</p>
+            <p>Sign in with your existing Family Budget account.</p>
             <form class="auth-form" id="auth-form">
                 <div class="form-group">
                     <label>Email</label>
@@ -798,10 +798,6 @@
                 <button class="btn btn-primary" type="submit" id="auth-submit">Sign In</button>
                 <div class="auth-message" id="auth-message" role="alert"></div>
             </form>
-            <div class="auth-switch">
-                <span id="auth-switch-text">Need an account?</span>
-                <button class="link-button" id="auth-toggle" type="button">Create one</button>
-            </div>
         </div>
     </div>
 
@@ -1037,7 +1033,6 @@
         import {
             getAuth,
             onAuthStateChanged,
-            createUserWithEmailAndPassword,
             signInWithEmailAndPassword,
             signOut
         } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
@@ -1090,18 +1085,14 @@
             const $authView = document.getElementById('auth-view');
             const $appContainer = document.getElementById('app-container');
             const $authForm = document.getElementById('auth-form');
-            const $authTitle = document.getElementById('auth-title');
             const $authEmail = document.getElementById('auth-email');
             const $authPassword = document.getElementById('auth-password');
             const $authSubmit = document.getElementById('auth-submit');
             const $authMessage = document.getElementById('auth-message');
-            const $authToggle = document.getElementById('auth-toggle');
-            const $authSwitchText = document.getElementById('auth-switch-text');
             const $userEmail = document.getElementById('user-email');
             const $btnSignOut = document.getElementById('btn-sign-out');
             const canvas = document.getElementById('cashflow-canvas');
             const ctx = canvas.getContext('2d');
-            let isSignUpMode = false;
             let appEventsBound = false;
 
             function initDefaultBills() {
@@ -1129,23 +1120,12 @@
                 $incomeTbody.innerHTML = '';
             }
 
-            function setAuthMode(signUp) {
-                isSignUpMode = signUp;
-                $authTitle.textContent = signUp ? 'Create your Family Budget account' : 'Sign in to Family Budget';
-                $authSubmit.textContent = signUp ? 'Create Account' : 'Sign In';
-                $authSwitchText.textContent = signUp ? 'Already have an account?' : 'Need an account?';
-                $authToggle.textContent = signUp ? 'Sign in' : 'Create one';
-                $authPassword.autocomplete = signUp ? 'new-password' : 'current-password';
-                $authMessage.textContent = '';
-            }
-
             function getAuthErrorMessage(error) {
                 const code = error && error.code ? error.code : '';
                 const messages = {
-                    'auth/email-already-in-use': 'That email already has an account.',
                     'auth/invalid-email': 'Enter a valid email address.',
                     'auth/invalid-credential': 'Email or password is not correct.',
-                    'auth/operation-not-allowed': 'Enable Email/Password sign-in in Firebase first.',
+                    'auth/operation-not-allowed': 'Email/password sign-in is disabled for this project.',
                     'auth/weak-password': 'Use a password with at least 6 characters.',
                     'auth/missing-password': 'Enter your password.',
                     'auth/network-request-failed': 'Network error. Try again in a moment.'
@@ -1808,29 +1788,21 @@
                 });
             }
 
-            $authToggle.addEventListener('click', () => {
-                setAuthMode(!isSignUpMode);
-            });
-
             $authForm.addEventListener('submit', async (event) => {
                 event.preventDefault();
                 const email = $authEmail.value.trim();
                 const password = $authPassword.value;
                 $authMessage.textContent = '';
                 $authSubmit.disabled = true;
-                $authSubmit.textContent = isSignUpMode ? 'Creating...' : 'Signing in...';
+                $authSubmit.textContent = 'Signing in...';
                 try {
-                    if (isSignUpMode) {
-                        await createUserWithEmailAndPassword(auth, email, password);
-                    } else {
-                        await signInWithEmailAndPassword(auth, email, password);
-                    }
+                    await signInWithEmailAndPassword(auth, email, password);
                     $authForm.reset();
                 } catch (error) {
                     $authMessage.textContent = getAuthErrorMessage(error);
                 } finally {
                     $authSubmit.disabled = false;
-                    $authSubmit.textContent = isSignUpMode ? 'Create Account' : 'Sign In';
+                    $authSubmit.textContent = 'Sign In';
                 }
             });
 
@@ -1845,7 +1817,6 @@
                     $appContainer.hidden = true;
                     $authView.hidden = false;
                     $userEmail.textContent = '';
-                    setAuthMode(false);
                     return;
                 }
 
