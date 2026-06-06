@@ -332,8 +332,48 @@
             letter-spacing: -0.01em;
         }
 
+        .app-tabs {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 0 0 24px;
+        }
+        .tab-button {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            border-radius: 999px;
+            cursor: pointer;
+            font: inherit;
+            font-size: 0.9rem;
+            font-weight: 700;
+            padding: 9px 16px;
+            transition: all 0.2s;
+        }
+        .tab-button.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            box-shadow: 0 8px 22px rgba(99, 102, 241, 0.25);
+        }
+        .tab-button:hover:not(.active) {
+            background: var(--surface2);
+            color: var(--text);
+        }
+        .tab-panel {
+            display: none;
+        }
+        .tab-panel.active {
+            display: block;
+        }
+
         .income-section,
-        .cashflow-section {
+        .cashflow-section,
+        .analysis-section,
+        .data-tools-section,
+        .production-section {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius);
@@ -434,6 +474,118 @@
             border-radius: 6px;
             font-size: 0.85rem;
             font-family: inherit;
+        }
+
+        .analysis-grid,
+        .production-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+        .analysis-card,
+        .production-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+        }
+        .analysis-label,
+        .production-label {
+            color: var(--text-secondary);
+            font-size: 0.76rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+        .analysis-value,
+        .production-value {
+            color: #fff;
+            font-size: 1.35rem;
+            font-weight: 800;
+        }
+        .analysis-note,
+        .production-note {
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            margin-top: 4px;
+        }
+        .analysis-value.positive {
+            color: var(--success);
+        }
+        .analysis-value.negative {
+            color: var(--danger);
+        }
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        .chart-panel {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            min-width: 0;
+        }
+        .chart-panel h4 {
+            color: #fff;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+        .pie-canvas-wrap {
+            width: 100%;
+            height: 240px;
+        }
+        .pie-canvas-wrap canvas {
+            display: block;
+            height: 100%;
+            width: 100%;
+        }
+        .chart-legend,
+        .readiness-list {
+            display: grid;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .legend-row,
+        .readiness-row {
+            align-items: center;
+            color: var(--text-secondary);
+            display: flex;
+            font-size: 0.84rem;
+            gap: 8px;
+            justify-content: space-between;
+        }
+        .legend-label,
+        .readiness-label {
+            align-items: center;
+            display: flex;
+            gap: 8px;
+            min-width: 0;
+        }
+        .legend-swatch,
+        .readiness-dot {
+            border-radius: 999px;
+            flex: 0 0 auto;
+            height: 10px;
+            width: 10px;
+        }
+        .projection-summary {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-top: 16px;
+            padding: 14px 16px;
+        }
+        .data-tool-row {
+            align-items: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .form-card {
@@ -564,6 +716,26 @@
             font-weight: 600;
             color: #fff;
         }
+        .bill-controls {
+            background: rgba(255, 255, 255, 0.025);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            display: grid;
+            gap: 14px;
+            margin-bottom: 16px;
+            padding: 14px;
+        }
+        .bill-control-grid {
+            display: grid;
+            grid-template-columns: minmax(180px, 1.4fr) repeat(4, minmax(130px, 1fr)) auto;
+            gap: 10px;
+            align-items: end;
+        }
+        .bill-count {
+            color: var(--text-secondary);
+            font-size: 0.84rem;
+            font-weight: 600;
+        }
         .filter-tabs {
             display: flex;
             gap: 4px;
@@ -604,6 +776,23 @@
             text-transform: uppercase;
             letter-spacing: 0.04em;
             border-bottom: 1px solid var(--border);
+        }
+        .sort-header {
+            align-items: center;
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            display: inline-flex;
+            font: inherit;
+            gap: 5px;
+            padding: 0;
+            text-transform: inherit;
+        }
+        .sort-indicator {
+            color: var(--accent-hover);
+            font-size: 0.74rem;
+            min-width: 10px;
         }
         .bills-table tbody td {
             padding: 12px;
@@ -739,6 +928,29 @@
                 grid-template-columns: repeat(2, 1fr);
                 gap: 10px;
             }
+            .app-tabs {
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding-bottom: 4px;
+            }
+            .tab-button {
+                flex: 0 0 auto;
+            }
+            .bill-control-grid {
+                grid-template-columns: 1fr;
+            }
+            .analysis-grid,
+            .production-grid,
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+            .data-tool-row {
+                align-items: stretch;
+                flex-direction: column;
+            }
+            .data-tool-row .btn {
+                width: 100%;
+            }
             .stat-card {
                 padding: 14px 12px;
             }
@@ -866,6 +1078,14 @@
             <button class="btn btn-outline btn-sm" onclick="goToCurrentMonth()">Today</button>
         </div>
 
+        <nav class="app-tabs" aria-label="Budget sections">
+            <button class="tab-button active" id="tab-btn-overview" type="button" onclick="switchTab('overview')">Overview</button>
+            <button class="tab-button" id="tab-btn-bills" type="button" onclick="switchTab('bills')">Bills</button>
+            <button class="tab-button" id="tab-btn-analysis" type="button" onclick="switchTab('analysis')">Analysis</button>
+            <button class="tab-button" id="tab-btn-add" type="button" onclick="switchTab('add')">Add Bill</button>
+        </nav>
+
+        <section class="tab-panel active" id="tab-overview">
         <!-- Income Section -->
         <div class="income-section">
             <div class="section-header">
@@ -933,6 +1153,85 @@
             </div>
         </div>
 
+        </section>
+
+        <section class="tab-panel" id="tab-analysis">
+            <div class="analysis-section">
+                <div class="section-header">
+                    <h3>Expenditure Analysis</h3>
+                    <div class="range-selector">
+                        <span>Analysis window:</span>
+                        <select id="analysis-window" onchange="updateAnalysisWindow()">
+                            <option value="1">1 Month</option>
+                            <option value="3" selected>3 Months</option>
+                            <option value="6">6 Months</option>
+                            <option value="12">12 Months</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="analysis-grid">
+                    <div class="analysis-card">
+                        <div class="analysis-label">Month income</div>
+                        <div class="analysis-value" id="analysis-month-income">$0</div>
+                        <div class="analysis-note" id="analysis-month-income-note">Selected month projection</div>
+                    </div>
+                    <div class="analysis-card">
+                        <div class="analysis-label">Month expenses</div>
+                        <div class="analysis-value" id="analysis-month-expenses">$0</div>
+                        <div class="analysis-note" id="analysis-month-expenses-note">Bills due this month</div>
+                    </div>
+                    <div class="analysis-card">
+                        <div class="analysis-label">Month net</div>
+                        <div class="analysis-value" id="analysis-month-net">$0</div>
+                        <div class="analysis-note" id="analysis-month-net-note">Income minus bills</div>
+                    </div>
+                    <div class="analysis-card">
+                        <div class="analysis-label">Before next pay</div>
+                        <div class="analysis-value" id="analysis-next-pay-risk">$0</div>
+                        <div class="analysis-note" id="analysis-next-pay-note">Unpaid bills before the next payday</div>
+                    </div>
+                </div>
+                <div class="chart-grid">
+                    <div class="chart-panel">
+                        <h4>Past expenditures by category</h4>
+                        <div class="pie-canvas-wrap">
+                            <canvas id="past-pie-canvas"></canvas>
+                        </div>
+                        <div class="chart-legend" id="past-pie-legend"></div>
+                    </div>
+                    <div class="chart-panel">
+                        <h4>Next expenditures by category</h4>
+                        <div class="pie-canvas-wrap">
+                            <canvas id="next-pie-canvas"></canvas>
+                        </div>
+                        <div class="chart-legend" id="next-pie-legend"></div>
+                    </div>
+                </div>
+                <div class="projection-summary" id="projection-summary"></div>
+            </div>
+
+            <div class="data-tools-section">
+                <div class="section-header">
+                    <h3>Data Tools</h3>
+                </div>
+                <div class="data-tool-row">
+                    <button class="btn btn-outline" type="button" onclick="exportBackup()">Export Backup</button>
+                    <button class="btn btn-outline" type="button" onclick="exportBillsCsv()">Export Bills CSV</button>
+                    <button class="btn btn-outline" type="button" onclick="triggerBackupImport()">Import Backup</button>
+                    <input id="backup-import" type="file" accept="application/json" hidden>
+                </div>
+            </div>
+
+            <div class="production-section">
+                <div class="section-header">
+                    <h3>Production Readiness</h3>
+                </div>
+                <div class="production-grid" id="production-grid"></div>
+                <div class="readiness-list" id="readiness-list"></div>
+            </div>
+        </section>
+
+        <section class="tab-panel" id="tab-add">
         <!-- Add Bill Form -->
         <div class="form-card" id="form-card">
             <h3>➕ Add New Bill</h3>
@@ -985,28 +1284,76 @@
             </div>
             <input type="hidden" id="edit-id" value="">
         </div>
+        </section>
 
+        <section class="tab-panel" id="tab-bills">
         <!-- Bills List -->
         <div class="bills-section">
             <div class="section-header">
                 <h3>📋 Your Bills</h3>
+                <span class="bill-count" id="bill-count">0 bills</span>
+            </div>
+            <div class="bill-controls">
                 <div class="filter-tabs">
                     <button class="filter-tab active" data-filter="all" onclick="setFilter('all', this)">All</button>
                     <button class="filter-tab" data-filter="unpaid" onclick="setFilter('unpaid', this)">Unpaid</button>
                     <button class="filter-tab" data-filter="paid" onclick="setFilter('paid', this)">Paid</button>
                     <button class="filter-tab" data-filter="overdue" onclick="setFilter('overdue', this)">⚠️ Overdue</button>
                 </div>
+                <div class="bill-control-grid">
+                    <div class="form-group">
+                        <label>Search</label>
+                        <input type="search" id="bill-search" placeholder="Name or category">
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="bill-filter-category">
+                            <option value="all">All categories</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Responsibility</label>
+                        <select id="bill-filter-responsibility">
+                            <option value="all">All people</option>
+                            <option value="Cochino">Cochino</option>
+                            <option value="Pepona">Pepona</option>
+                            <option value="Shared">Shared</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Recurring</label>
+                        <select id="bill-filter-recurring">
+                            <option value="all">All schedules</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="none">One-time</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Sort</label>
+                        <select id="bill-sort">
+                            <option value="dueDate">Due date</option>
+                            <option value="amount">Amount</option>
+                            <option value="name">Bill name</option>
+                            <option value="category">Category</option>
+                            <option value="status">Status</option>
+                            <option value="responsibility">Responsibility</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-outline btn-sm" type="button" onclick="resetBillControls()">Reset</button>
+                </div>
             </div>
             <div style="overflow-x:auto;">
                 <table class="bills-table">
                     <thead>
                         <tr>
-                            <th>Bill</th>
-                            <th>Category</th>
-                            <th>Amount</th>
-                            <th>Due Date</th>
-                            <th>Status</th>
-                            <th>Paid by</th>
+                            <th><button class="sort-header" type="button" onclick="setBillSort('name')">Bill <span class="sort-indicator" id="sort-name"></span></button></th>
+                            <th><button class="sort-header" type="button" onclick="setBillSort('category')">Category <span class="sort-indicator" id="sort-category"></span></button></th>
+                            <th><button class="sort-header" type="button" onclick="setBillSort('amount')">Amount <span class="sort-indicator" id="sort-amount"></span></button></th>
+                            <th><button class="sort-header" type="button" onclick="setBillSort('dueDate')">Due Date <span class="sort-indicator" id="sort-dueDate"></span></button></th>
+                            <th><button class="sort-header" type="button" onclick="setBillSort('status')">Status <span class="sort-indicator" id="sort-status"></span></button></th>
+                            <th><button class="sort-header" type="button" onclick="setBillSort('responsibility')">Paid by <span class="sort-indicator" id="sort-responsibility"></span></button></th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -1024,6 +1371,7 @@
                 </table>
             </div>
         </div>
+        </section>
     </div>
 
     <div class="toast-container" id="toast-container"></div>
@@ -1065,9 +1413,17 @@
             let incomeSources = [];
             let currentMonth = new Date().getMonth();
             let currentYear = new Date().getFullYear();
+            let activeTab = 'overview';
             let activeFilter = 'all';
+            let billSearch = '';
+            let billCategoryFilter = 'all';
+            let billResponsibilityFilter = 'all';
+            let billRecurringFilter = 'all';
+            let billSort = 'dueDate';
+            let billSortDir = 'asc';
             let editingId = null;
             let cashFlowMonths = 3; // default
+            let analysisMonths = 3;
 
             const $tbody = document.getElementById('bills-tbody');
             const $monthLabel = document.getElementById('month-label');
@@ -1091,8 +1447,20 @@
             const $authMessage = document.getElementById('auth-message');
             const $userEmail = document.getElementById('user-email');
             const $btnSignOut = document.getElementById('btn-sign-out');
+            const $billSearch = document.getElementById('bill-search');
+            const $billCategoryFilter = document.getElementById('bill-filter-category');
+            const $billResponsibilityFilter = document.getElementById('bill-filter-responsibility');
+            const $billRecurringFilter = document.getElementById('bill-filter-recurring');
+            const $billSort = document.getElementById('bill-sort');
+            const $billCount = document.getElementById('bill-count');
+            const $backupImport = document.getElementById('backup-import');
             const canvas = document.getElementById('cashflow-canvas');
             const ctx = canvas.getContext('2d');
+            const pastPieCanvas = document.getElementById('past-pie-canvas');
+            const pastPieCtx = pastPieCanvas.getContext('2d');
+            const nextPieCanvas = document.getElementById('next-pie-canvas');
+            const nextPieCtx = nextPieCanvas.getContext('2d');
+            const pieColors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#22d3ee', '#ec4899', '#a855f7', '#84cc16', '#f97316', '#14b8a6'];
             let appEventsBound = false;
 
             function initDefaultBills() {
@@ -1131,6 +1499,166 @@
                     'auth/network-request-failed': 'Network error. Try again in a moment.'
                 };
                 return messages[code] || 'Authentication failed. Please try again.';
+            }
+
+            function formatMoney(value) {
+                const amount = Number(value) || 0;
+                return '$' + amount.toFixed(2);
+            }
+
+            function toDate(value) {
+                if (!value) return null;
+                const date = new Date(value + 'T00:00:00');
+                return Number.isNaN(date.getTime()) ? null : date;
+            }
+
+            function normalizeDate(date) {
+                const normalized = new Date(date);
+                normalized.setHours(0, 0, 0, 0);
+                return normalized;
+            }
+
+            function addDays(date, days) {
+                const next = new Date(date);
+                next.setDate(next.getDate() + days);
+                return next;
+            }
+
+            function getDateKey(date) {
+                return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            }
+
+            function getMonthKey(date) {
+                return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            }
+
+            function getPaidKeyForDate(date) {
+                return getMonthKey(date);
+            }
+
+            function isBillPaidForDate(bill, date) {
+                return !!(bill.paidPeriods && bill.paidPeriods.includes(getPaidKeyForDate(date)));
+            }
+
+            function getOccurrenceStatus(bill, dueDate) {
+                const normalizedDue = normalizeDate(dueDate);
+                const today = normalizeDate(new Date());
+                if (isBillPaidForDate(bill, normalizedDue)) return 'paid';
+                if (normalizedDue < today) return 'overdue';
+                const diffDays = Math.ceil((normalizedDue - today) / (1000 * 60 * 60 * 24));
+                if (diffDays >= 0 && diffDays <= 5) return 'upcoming';
+                return 'future';
+            }
+
+            function createOccurrence(bill, dueDate) {
+                const normalizedDue = normalizeDate(dueDate);
+                return {
+                    bill,
+                    dueDate: normalizedDue,
+                    status: getOccurrenceStatus(bill, normalizedDue),
+                    amount: parseFloat(bill.amount) || 0,
+                    category: bill.category || 'Other',
+                    responsibility: bill.responsibility || 'Cochino',
+                    recurring: bill.recurring || 'monthly'
+                };
+            }
+
+            function addBillOccurrence(result, bill, dueDate, start, end) {
+                const normalizedDue = normalizeDate(dueDate);
+                if (normalizedDue >= start && normalizedDue <= end) {
+                    result.push(createOccurrence(bill, normalizedDue));
+                }
+            }
+
+            function getBillOccurrencesForRange(startDate, endDate) {
+                const start = normalizeDate(startDate);
+                const end = normalizeDate(endDate);
+                const occurrences = [];
+                bills.forEach(bill => {
+                    const firstDueDate = toDate(bill.dueDateFull);
+                    if (!firstDueDate) return;
+                    const recurring = bill.recurring || 'monthly';
+                    const amount = parseFloat(bill.amount);
+                    if (!bill.name || Number.isNaN(amount) || amount < 0) return;
+
+                    if (recurring === 'none') {
+                        addBillOccurrence(occurrences, bill, firstDueDate, start, end);
+                        return;
+                    }
+
+                    if (recurring === 'weekly') {
+                        let dueDate = normalizeDate(firstDueDate);
+                        while (dueDate < start) dueDate = addDays(dueDate, 7);
+                        while (dueDate <= end) {
+                            addBillOccurrence(occurrences, bill, dueDate, start, end);
+                            dueDate = addDays(dueDate, 7);
+                        }
+                        return;
+                    }
+
+                    if (recurring === 'yearly') {
+                        const dueMonth = firstDueDate.getMonth();
+                        const dueDay = firstDueDate.getDate();
+                        for (let year = start.getFullYear(); year <= end.getFullYear(); year++) {
+                            const lastDay = new Date(year, dueMonth + 1, 0).getDate();
+                            const dueDate = new Date(year, dueMonth, Math.min(dueDay, lastDay));
+                            if (dueDate >= firstDueDate) addBillOccurrence(occurrences, bill, dueDate, start, end);
+                        }
+                        return;
+                    }
+
+                    let month = start.getMonth();
+                    let year = start.getFullYear();
+                    const lastMonth = end.getMonth();
+                    const lastYear = end.getFullYear();
+                    while (year < lastYear || (year === lastYear && month <= lastMonth)) {
+                        const dueDate = getBillDueDateThisMonth(bill, month, year);
+                        if (dueDate >= firstDueDate) addBillOccurrence(occurrences, bill, dueDate, start, end);
+                        month++;
+                        if (month > 11) { month = 0; year++; }
+                    }
+                });
+                return occurrences.sort((a, b) => a.dueDate - b.dueDate || a.bill.name.localeCompare(b.bill.name));
+            }
+
+            function getIncomeOccurrencesForRange(startDate, endDate) {
+                const start = normalizeDate(startDate);
+                const end = normalizeDate(endDate);
+                const paydays = [];
+                incomeSources.forEach(source => {
+                    const sourceStart = toDate(source.startDate);
+                    if (!sourceStart) return;
+                    let current = normalizeDate(sourceStart);
+                    while (current < start && source.frequency === 'biweekly') {
+                        current = addDays(current, 14);
+                    }
+                    while (current <= end) {
+                        if (current >= start) {
+                            paydays.push({
+                                sourceId: source.id,
+                                person: source.person,
+                                amount: parseFloat(source.amount) || 0,
+                                date: new Date(current),
+                                received: isPaydayReceived(source, current)
+                            });
+                        }
+                        if (source.frequency === 'biweekly') current = addDays(current, 14);
+                        else break;
+                    }
+                });
+                return paydays.sort((a, b) => a.date - b.date);
+            }
+
+            function sumAmounts(items) {
+                return items.reduce((total, item) => total + (parseFloat(item.amount) || 0), 0);
+            }
+
+            function groupByCategory(occurrences) {
+                return occurrences.reduce((groups, occurrence) => {
+                    const category = occurrence.category || 'Other';
+                    groups[category] = (groups[category] || 0) + occurrence.amount;
+                    return groups;
+                }, {});
             }
 
             async function loadBills() {
@@ -1201,7 +1729,8 @@
             }
 
             function getBillDueDateThisMonth(bill, month, year) {
-                const dueDay = parseInt(bill.dueDay);
+                const fallbackDate = toDate(bill.dueDateFull);
+                const dueDay = parseInt(bill.dueDay) || (fallbackDate ? fallbackDate.getDate() : 1);
                 const safeDay = Math.min(dueDay, new Date(year, month + 1, 0).getDate());
                 return new Date(year, month, safeDay);
             }
@@ -1352,24 +1881,15 @@
             // ──────────────────────────────────────
             function getAllRelevantBills() {
                 const { start, end } = getMonthDateRange(currentMonth, currentYear);
-                const monthStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-                const relevant = [];
-                const seen = new Set();
+                const relevant = getBillOccurrencesForRange(start, end);
                 bills.forEach(bill => {
-                    const status = getBillStatus(bill, currentMonth, currentYear);
-                    const dueDate = getBillDueDateThisMonth(bill, currentMonth, currentYear);
-                    const isRecurring = bill.recurring !== 'none';
-                    const dueInMonth = dueDate >= start && dueDate <= end;
-                    const isOverdueUnpaid = status === 'overdue';
-                    if (isRecurring || dueInMonth || (isOverdueUnpaid && dueDate < start)) {
-                        const key = `${bill.id}-${monthStr}`;
-                        if (!seen.has(key)) {
-                            seen.add(key);
-                            relevant.push({ bill, status, dueDate });
-                        }
+                    if ((bill.recurring || 'monthly') !== 'none') return;
+                    const dueDate = toDate(bill.dueDateFull);
+                    if (dueDate && dueDate < start && !isBillPaidForDate(bill, dueDate)) {
+                        relevant.push(createOccurrence(bill, dueDate));
                     }
                 });
-                return relevant;
+                return relevant.sort((a, b) => a.dueDate - b.dueDate || a.bill.name.localeCompare(b.bill.name));
             }
 
             function getFilteredBills() {
@@ -1378,18 +1898,50 @@
                 if (activeFilter === 'paid') filtered = all.filter(i => i.status === 'paid');
                 if (activeFilter === 'unpaid') filtered = all.filter(i => i.status !== 'paid');
                 if (activeFilter === 'overdue') filtered = all.filter(i => i.status === 'overdue');
-                const order = { overdue: 0, upcoming: 1, future: 2, past: 3, paid: 4 };
-                filtered.sort((a, b) => (order[a.status] ?? 5) - (order[b.status] ?? 5) || a.dueDate - b.dueDate);
+
+                const query = billSearch.toLowerCase();
+                if (query) {
+                    filtered = filtered.filter(({ bill, category, responsibility, recurring }) => {
+                        return [bill.name, category, responsibility, recurring].some(value => String(value || '').toLowerCase().includes(query));
+                    });
+                }
+                if (billCategoryFilter !== 'all') filtered = filtered.filter(item => item.category === billCategoryFilter);
+                if (billResponsibilityFilter !== 'all') filtered = filtered.filter(item => item.responsibility === billResponsibilityFilter);
+                if (billRecurringFilter !== 'all') filtered = filtered.filter(item => item.recurring === billRecurringFilter);
+
+                const statusOrder = { overdue: 0, upcoming: 1, future: 2, past: 3, paid: 4 };
+                const sorters = {
+                    dueDate: item => item.dueDate.getTime(),
+                    amount: item => item.amount,
+                    name: item => String(item.bill.name || '').toLowerCase(),
+                    category: item => String(item.category || '').toLowerCase(),
+                    status: item => statusOrder[item.status] ?? 5,
+                    responsibility: item => String(item.responsibility || '').toLowerCase()
+                };
+                const getValue = sorters[billSort] || sorters.dueDate;
+                filtered.sort((a, b) => {
+                    const aValue = getValue(a);
+                    const bValue = getValue(b);
+                    let result = 0;
+                    if (typeof aValue === 'number' && typeof bValue === 'number') result = aValue - bValue;
+                    else result = String(aValue).localeCompare(String(bValue));
+                    if (result === 0) result = a.dueDate - b.dueDate;
+                    return billSortDir === 'asc' ? result : -result;
+                });
                 return filtered;
             }
 
             function renderAll() {
                 renderMonthLabel();
+                renderBillCategoryFilterOptions();
                 renderTable();
                 renderOverallDashboard();
                 renderPersonDashboard();
                 renderIncomeSection();
                 renderCashFlowChart();
+                renderAnalysis();
+                renderProductionReadiness();
+                renderSortIndicators();
                 updateFormButton();
             }
 
@@ -1397,18 +1949,39 @@
                 $monthLabel.textContent = new Date(currentYear, currentMonth, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
             }
 
+            function renderBillCategoryFilterOptions() {
+                const categories = [...new Set(bills.map(bill => bill.category).filter(Boolean))].sort();
+                const currentValue = billCategoryFilter;
+                $billCategoryFilter.innerHTML = '<option value="all">All categories</option>' + categories.map(category => {
+                    return `<option value="${escapeHtml(category)}">${getCategoryEmoji(category)} ${escapeHtml(category)}</option>`;
+                }).join('');
+                $billCategoryFilter.value = categories.includes(currentValue) ? currentValue : 'all';
+                billCategoryFilter = $billCategoryFilter.value;
+            }
+
+            function renderSortIndicators() {
+                document.querySelectorAll('.sort-indicator').forEach(indicator => {
+                    indicator.textContent = '';
+                });
+                const indicator = document.getElementById(`sort-${billSort}`);
+                if (indicator) indicator.textContent = billSortDir === 'asc' ? 'up' : 'down';
+                $billSort.value = billSort;
+            }
+
             function renderTable() {
                 const filtered = getFilteredBills();
                 $tbody.innerHTML = '';
+                const total = getAllRelevantBills().length;
+                $billCount.textContent = `${filtered.length} of ${total} bills`;
                 if (!filtered.length) {
                     $tbody.innerHTML = `<tr class="empty-row"><td colspan="7"><div class="empty-state"><div class="empty-icon">📭</div><p><strong>No bills found</strong></p></div></td></tr>`;
                     return;
                 }
                 filtered.forEach(({ bill, status, dueDate }) => {
                     const tr = document.createElement('tr');
-                    const paidKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
                     const isPaid = status === 'paid';
                     const resp = bill.responsibility === 'Cochino' ? '🐷 Cochino' : bill.responsibility === 'Pepona' ? '🐽 Pepona' : '🤝 Shared';
+                    const dateKey = getDateKey(dueDate);
                     tr.innerHTML = `
                         <td><span class="bill-name">${escapeHtml(bill.name)}</span></td>
                         <td><span class="bill-category">${getCategoryEmoji(bill.category)} ${escapeHtml(bill.category)}</span></td>
@@ -1417,7 +1990,7 @@
                         <td><span class="status-badge ${getStatusClass(status)}">${getStatusLabel(status)}</span></td>
                         <td>${resp}</td>
                         <td class="actions-cell">
-                            ${!isPaid ? `<button class="btn btn-success btn-sm" onclick="markPaid('${bill.id}')">✓ Paid</button>` : `<button class="btn btn-outline btn-sm" onclick="markUnpaid('${bill.id}')">↩ Undo</button>`}
+                            ${!isPaid ? `<button class="btn btn-success btn-sm" onclick="markPaid('${bill.id}', '${dateKey}')">✓ Paid</button>` : `<button class="btn btn-outline btn-sm" onclick="markUnpaid('${bill.id}', '${dateKey}')">↩ Undo</button>`}
                             <button class="btn btn-outline btn-sm" onclick="editBill('${bill.id}')">✏️</button>
                             <button class="btn btn-danger btn-sm" onclick="deleteBill('${bill.id}')">🗑</button>
                         </td>`;
@@ -1464,6 +2037,212 @@
                 const div = document.createElement('div');
                 div.textContent = str;
                 return div.innerHTML;
+            }
+
+            function setAnalysisValue(id, value) {
+                const element = document.getElementById(id);
+                element.textContent = formatMoney(value);
+                element.classList.toggle('positive', value >= 0);
+                element.classList.toggle('negative', value < 0);
+            }
+
+            function renderAnalysis() {
+                const selectedRange = getMonthDateRange(currentMonth, currentYear);
+                const monthBills = getBillOccurrencesForRange(selectedRange.start, selectedRange.end);
+                const monthIncome = getIncomeOccurrencesForRange(selectedRange.start, selectedRange.end);
+                const monthExpenseTotal = sumAmounts(monthBills);
+                const monthIncomeTotal = sumAmounts(monthIncome);
+                const monthNet = monthIncomeTotal - monthExpenseTotal;
+                const today = normalizeDate(new Date());
+                const nextPayWindowEnd = addDays(today, 90);
+                const upcomingPaydays = getIncomeOccurrencesForRange(today, nextPayWindowEnd).filter(pay => pay.date >= today);
+                const nextPayDate = upcomingPaydays.length ? upcomingPaydays[0].date : null;
+                const sameDayPaydays = nextPayDate ? upcomingPaydays.filter(pay => getDateKey(pay.date) === getDateKey(nextPayDate)) : [];
+                const nextPayAmount = sumAmounts(sameDayPaydays);
+                const billsBeforeNextPay = nextPayDate
+                    ? getBillOccurrencesForRange(today, nextPayDate).filter(item => item.status !== 'paid')
+                    : [];
+                const dueBeforeNextPay = sumAmounts(billsBeforeNextPay);
+                const nextPayNet = nextPayAmount - dueBeforeNextPay;
+
+                setAnalysisValue('analysis-month-income', monthIncomeTotal);
+                setAnalysisValue('analysis-month-expenses', monthExpenseTotal);
+                setAnalysisValue('analysis-month-net', monthNet);
+                setAnalysisValue('analysis-next-pay-risk', dueBeforeNextPay);
+                document.getElementById('analysis-month-income-note').textContent = `${monthIncome.length} projected paydays`;
+                document.getElementById('analysis-month-expenses-note').textContent = `${monthBills.length} bill occurrences`;
+                document.getElementById('analysis-month-net-note').textContent = monthNet >= 0 ? 'Projected surplus' : 'Projected shortfall';
+                document.getElementById('analysis-next-pay-note').textContent = nextPayDate
+                    ? `${billsBeforeNextPay.length} unpaid bills before ${nextPayDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+                    : 'No upcoming payday found';
+
+                const pastEnd = addDays(today, -1);
+                const pastStart = new Date(today.getFullYear(), today.getMonth() - analysisMonths, today.getDate());
+                const nextStart = today;
+                const nextEnd = new Date(today.getFullYear(), today.getMonth() + analysisMonths, today.getDate());
+                const pastBills = getBillOccurrencesForRange(pastStart, pastEnd);
+                const nextBills = getBillOccurrencesForRange(nextStart, nextEnd);
+                drawPieChart(pastPieCanvas, pastPieCtx, groupByCategory(pastBills), 'past-pie-legend');
+                drawPieChart(nextPieCanvas, nextPieCtx, groupByCategory(nextBills), 'next-pie-legend');
+
+                const nextPayText = nextPayDate
+                    ? `Next payday is ${nextPayDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} for ${formatMoney(nextPayAmount)}. Unpaid bills due before then total ${formatMoney(dueBeforeNextPay)}, leaving ${formatMoney(nextPayNet)} from that paycheck.`
+                    : 'No upcoming payday is configured in the next 90 days. Confirm income source start dates before relying on projections.';
+                const monthText = `For ${new Date(currentYear, currentMonth, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}, projected income is ${formatMoney(monthIncomeTotal)} and scheduled bills are ${formatMoney(monthExpenseTotal)}. Net projection is ${formatMoney(monthNet)}.`;
+                document.getElementById('projection-summary').textContent = `${monthText} ${nextPayText}`;
+            }
+
+            function drawPieChart(chartCanvas, chartCtx, groupedData, legendId) {
+                const container = chartCanvas.parentNode;
+                const rect = container.getBoundingClientRect();
+                chartCanvas.width = rect.width || 280;
+                chartCanvas.height = rect.height || 240;
+                const width = chartCanvas.width;
+                const height = chartCanvas.height;
+                const radius = Math.max(40, Math.min(width, height) / 2 - 18);
+                const centerX = width / 2;
+                const centerY = height / 2;
+                chartCtx.clearRect(0, 0, width, height);
+
+                const entries = Object.entries(groupedData).filter(([, value]) => value > 0).sort((a, b) => b[1] - a[1]);
+                const total = entries.reduce((sum, [, value]) => sum + value, 0);
+                const legend = document.getElementById(legendId);
+                if (!entries.length || total <= 0) {
+                    chartCtx.fillStyle = '#a0a0b8';
+                    chartCtx.font = '13px Inter, sans-serif';
+                    chartCtx.textAlign = 'center';
+                    chartCtx.fillText('No expenses in this window', centerX, centerY);
+                    legend.innerHTML = '<div class="legend-row">No category data</div>';
+                    return;
+                }
+
+                let startAngle = -Math.PI / 2;
+                entries.forEach(([category, value], index) => {
+                    const slice = (value / total) * Math.PI * 2;
+                    chartCtx.beginPath();
+                    chartCtx.moveTo(centerX, centerY);
+                    chartCtx.arc(centerX, centerY, radius, startAngle, startAngle + slice);
+                    chartCtx.closePath();
+                    chartCtx.fillStyle = pieColors[index % pieColors.length];
+                    chartCtx.fill();
+                    startAngle += slice;
+                });
+
+                chartCtx.beginPath();
+                chartCtx.arc(centerX, centerY, radius * 0.55, 0, Math.PI * 2);
+                chartCtx.fillStyle = '#222240';
+                chartCtx.fill();
+                chartCtx.fillStyle = '#fff';
+                chartCtx.font = '700 16px Inter, sans-serif';
+                chartCtx.textAlign = 'center';
+                chartCtx.fillText(formatMoney(total), centerX, centerY + 5);
+
+                legend.innerHTML = entries.map(([category, value], index) => {
+                    const percent = Math.round((value / total) * 100);
+                    return `
+                        <div class="legend-row">
+                            <span class="legend-label"><span class="legend-swatch" style="background:${pieColors[index % pieColors.length]}"></span>${escapeHtml(category)}</span>
+                            <span>${formatMoney(value)} (${percent}%)</span>
+                        </div>`;
+                }).join('');
+            }
+
+            function renderProductionReadiness() {
+                const billCount = bills.length;
+                const incomeCount = incomeSources.length;
+                const invalidBills = bills.filter(bill => {
+                    const amount = parseFloat(bill.amount);
+                    return !bill.name || !bill.dueDateFull || Number.isNaN(amount) || amount < 0;
+                }).length;
+                const categories = new Set(bills.map(bill => bill.category).filter(Boolean)).size;
+                const selectedRange = getMonthDateRange(currentMonth, currentYear);
+                const monthNet = sumAmounts(getIncomeOccurrencesForRange(selectedRange.start, selectedRange.end)) - sumAmounts(getBillOccurrencesForRange(selectedRange.start, selectedRange.end));
+                const productionCards = [
+                    { label: 'Bills tracked', value: billCount, note: billCount ? `${categories} active categories` : 'Add recurring bills to make projections useful' },
+                    { label: 'Income sources', value: incomeCount, note: incomeCount ? 'Projection engine has pay data' : 'Add income data before relying on cash flow' },
+                    { label: 'Data issues', value: invalidBills, note: invalidBills ? 'Fix invalid bill records' : 'No invalid bill records found' },
+                    { label: 'Selected month net', value: formatMoney(monthNet), note: monthNet >= 0 ? 'Projection is solvent' : 'Projection is short' }
+                ];
+                document.getElementById('production-grid').innerHTML = productionCards.map(card => `
+                    <div class="production-card">
+                        <div class="production-label">${escapeHtml(card.label)}</div>
+                        <div class="production-value">${escapeHtml(String(card.value))}</div>
+                        <div class="production-note">${escapeHtml(card.note)}</div>
+                    </div>
+                `).join('');
+
+                const checks = [
+                    { label: 'Authenticated account required', ok: !!currentUser },
+                    { label: 'Email verification visible', ok: !!(currentUser && currentUser.emailVerified) },
+                    { label: 'Backup export available', ok: true },
+                    { label: 'Bills have required fields', ok: invalidBills === 0 },
+                    { label: 'Income projection configured', ok: incomeCount > 0 },
+                    { label: 'Category analysis configured', ok: categories > 0 }
+                ];
+                document.getElementById('readiness-list').innerHTML = checks.map(check => `
+                    <div class="readiness-row">
+                        <span class="readiness-label"><span class="readiness-dot" style="background:${check.ok ? '#10b981' : '#f59e0b'}"></span>${escapeHtml(check.label)}</span>
+                        <span>${check.ok ? 'Ready' : 'Needs attention'}</span>
+                    </div>
+                `).join('');
+            }
+
+            function downloadTextFile(filename, content, mimeType) {
+                const blob = new Blob([content], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(url);
+            }
+
+            window.exportBackup = function() {
+                const backup = {
+                    exportedAt: new Date().toISOString(),
+                    version: 1,
+                    bills,
+                    incomeSources
+                };
+                downloadTextFile(`family-budget-backup-${getDateKey(new Date())}.json`, JSON.stringify(backup, null, 2), 'application/json');
+                showToast('Backup exported.');
+            };
+
+            window.exportBillsCsv = function() {
+                const headers = ['name', 'amount', 'dueDateFull', 'category', 'recurring', 'responsibility', 'paidPeriods'];
+                const rows = bills.map(bill => headers.map(header => {
+                    const value = Array.isArray(bill[header]) ? bill[header].join('|') : (bill[header] ?? '');
+                    return `"${String(value).replace(/"/g, '""')}"`;
+                }).join(','));
+                downloadTextFile(`family-budget-bills-${getDateKey(new Date())}.csv`, [headers.join(','), ...rows].join('\n'), 'text/csv');
+                showToast('Bills CSV exported.');
+            };
+
+            window.triggerBackupImport = function() {
+                $backupImport.click();
+            };
+
+            async function importBackupFile(file) {
+                const text = await file.text();
+                const parsed = JSON.parse(text);
+                if (!Array.isArray(parsed.bills) || !Array.isArray(parsed.incomeSources)) {
+                    throw new Error('Backup must include bills and incomeSources arrays.');
+                }
+                if (!confirm('Importing this backup will replace current bills and income sources. Continue?')) return;
+                bills = parsed.bills.map(bill => ({
+                    ...bill,
+                    paidPeriods: Array.isArray(bill.paidPeriods) ? bill.paidPeriods : []
+                }));
+                incomeSources = parsed.incomeSources.map(source => ({
+                    ...source,
+                    receivedDates: Array.isArray(source.receivedDates) ? source.receivedDates : []
+                }));
+                await saveBills();
+                await saveIncome();
+                renderAll();
+                showToast('Backup imported.');
             }
 
             // ──────────────────────────────────────
@@ -1637,7 +2416,58 @@
                 renderCashFlowChart();
             };
 
-            window.addEventListener('resize', () => renderCashFlowChart());
+            window.updateAnalysisWindow = function() {
+                analysisMonths = parseInt(document.getElementById('analysis-window').value, 10) || 3;
+                renderAnalysis();
+            };
+
+            window.switchTab = function(tabName) {
+                activeTab = tabName;
+                document.querySelectorAll('.tab-panel').forEach(panel => {
+                    panel.classList.toggle('active', panel.id === `tab-${tabName}`);
+                });
+                document.querySelectorAll('.tab-button').forEach(button => {
+                    button.classList.toggle('active', button.id === `tab-btn-${tabName}`);
+                });
+                if (tabName === 'analysis') renderAnalysis();
+                if (tabName === 'bills') {
+                    renderTable();
+                    renderSortIndicators();
+                }
+            };
+
+            window.setBillSort = function(field) {
+                if (billSort === field) {
+                    billSortDir = billSortDir === 'asc' ? 'desc' : 'asc';
+                } else {
+                    billSort = field;
+                    billSortDir = field === 'amount' ? 'desc' : 'asc';
+                }
+                $billSort.value = billSort;
+                renderTable();
+                renderSortIndicators();
+            };
+
+            window.resetBillControls = function() {
+                billSearch = '';
+                billCategoryFilter = 'all';
+                billResponsibilityFilter = 'all';
+                billRecurringFilter = 'all';
+                billSort = 'dueDate';
+                billSortDir = 'asc';
+                $billSearch.value = '';
+                $billCategoryFilter.value = 'all';
+                $billResponsibilityFilter.value = 'all';
+                $billRecurringFilter.value = 'all';
+                $billSort.value = 'dueDate';
+                renderTable();
+                renderSortIndicators();
+            };
+
+            window.addEventListener('resize', () => {
+                renderCashFlowChart();
+                if (activeTab === 'analysis') renderAnalysis();
+            });
 
             // ──────────────────────────────────────
             // BILL ACTIONS
@@ -1694,6 +2524,7 @@
                 $inputRecurring.value = bill.recurring;
                 $inputResponsibility.value = bill.responsibility || 'Cochino';
                 updateFormButton();
+                window.switchTab('add');
                 $formCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 $inputName.focus();
             };
@@ -1707,8 +2538,9 @@
                 showToast('🗑 Bill deleted.');
             };
 
-            window.markPaid = function(id) {
-                const paidKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+            window.markPaid = function(id, dateKey) {
+                const paidDate = dateKey ? toDate(dateKey) : new Date(currentYear, currentMonth, 1);
+                const paidKey = getPaidKeyForDate(paidDate);
                 const bill = bills.find(b => b.id === id);
                 if (!bill) return;
                 if (!bill.paidPeriods) bill.paidPeriods = [];
@@ -1720,8 +2552,9 @@
                 }
             };
 
-            window.markUnpaid = function(id) {
-                const paidKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+            window.markUnpaid = function(id, dateKey) {
+                const paidDate = dateKey ? toDate(dateKey) : new Date(currentYear, currentMonth, 1);
+                const paidKey = getPaidKeyForDate(paidDate);
                 const bill = bills.find(b => b.id === id);
                 if (!bill) return;
                 bill.paidPeriods = (bill.paidPeriods || []).filter(p => p !== paidKey);
@@ -1772,10 +2605,48 @@
                 $inputDate.value = today.toISOString().split('T')[0];
                 $inputResponsibility.value = 'Cochino';
                 document.getElementById('cashflow-range').value = cashFlowMonths;
+                document.getElementById('analysis-window').value = analysisMonths;
+                $billSearch.value = billSearch;
+                $billResponsibilityFilter.value = billResponsibilityFilter;
+                $billRecurringFilter.value = billRecurringFilter;
+                $billSort.value = billSort;
                 renderAll();
                 updateFormButton();
                 if (appEventsBound) return;
                 appEventsBound = true;
+                $billSearch.addEventListener('input', () => {
+                    billSearch = $billSearch.value.trim();
+                    renderTable();
+                });
+                $billCategoryFilter.addEventListener('change', () => {
+                    billCategoryFilter = $billCategoryFilter.value;
+                    renderTable();
+                });
+                $billResponsibilityFilter.addEventListener('change', () => {
+                    billResponsibilityFilter = $billResponsibilityFilter.value;
+                    renderTable();
+                });
+                $billRecurringFilter.addEventListener('change', () => {
+                    billRecurringFilter = $billRecurringFilter.value;
+                    renderTable();
+                });
+                $billSort.addEventListener('change', () => {
+                    billSort = $billSort.value;
+                    billSortDir = billSort === 'amount' ? 'desc' : 'asc';
+                    renderTable();
+                    renderSortIndicators();
+                });
+                $backupImport.addEventListener('change', async () => {
+                    const file = $backupImport.files && $backupImport.files[0];
+                    if (!file) return;
+                    try {
+                        await importBackupFile(file);
+                    } catch (error) {
+                        showToast(error.message || 'Could not import backup.');
+                    } finally {
+                        $backupImport.value = '';
+                    }
+                });
                 document.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter' && document.activeElement && document.activeElement.closest('#form-card')) {
                         e.preventDefault();
